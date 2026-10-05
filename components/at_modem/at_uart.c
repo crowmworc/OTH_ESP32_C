@@ -167,9 +167,11 @@ static void at_uart_rx_task(void *arg)
                 at_dispatch_line(line);
             }
             idx = 0;
-        } else if (byte == '\n') {
-            /* Some hosts send CRLF or LF; a bare LF outside of a command is
-             * not a documented terminator, so just ignore it. */
+        } else if (byte == '\n' && idx == 0) {
+            /* The LF of a host's CRLF line ending. Not a terminator, and
+             * ignored only here: inside a line it is payload data (byte
+             * stuffing, doc Ch.1.4, escapes CR/BS/ESC but not LF), which
+             * dropping it used to corrupt. */
             continue;
         } else if (idx < AT_LINE_MAX - 1) {
             line[idx++] = (char)byte;

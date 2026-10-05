@@ -74,6 +74,7 @@ static int s_keep_cnt;
 
 /* data mode */
 static volatile int s_data_sd = -1;
+static volatile int s_data_opening = -1; /* DATA_SOCKET connecting: no CONNECTED/TIMEOUT line */
 static int s_data_type;
 static int s_data_interval_ms = 200;
 static uint8_t s_tx_buf[1460];
@@ -906,7 +907,7 @@ static void on_connecting(int sd, bool writable)
         slot_close_locked(sd); /* auto-closed */
     }
     unlock();
-    if (ev) {
+    if (ev && sd != s_data_opening) {
         at_event_post("%s:%d", ev, sd);
     }
 }
@@ -1228,6 +1229,7 @@ int oth_sock_data_open(int type, const char *rip, uint16_t rport, uint16_t lport
             unlock();
         } else {
             /* TCP client: connect before answering, bounded like a CONNECT */
+            s_data_opening = sd;
             err = oth_sock_connect(sd, rip, rport);
             int64_t deadline = esp_timer_get_time() + CONNECT_TIMEOUT_US + 500000;
             while (!err) {
@@ -1243,8 +1245,7 @@ int oth_sock_data_open(int type, const char *rip, uint16_t rport, uint16_t lport
                 }
                 vTaskDelay(pdMS_TO_TICKS(50));
             }
-            /* the background task posted CONNECTED/TIMEOUT -- expected
-             * around a DATA_SOCKET too */
+            s_data_opening = -1;
         }
     }
     if (err) {
