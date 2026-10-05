@@ -31,7 +31,8 @@ if(CONFIG_AT_MODEM_CMDSET_OTH)
         "oth_sock.c"
         "cmd_oth_net.c"
         "cmd_oth_svc.c"
-        "cmd_oth_fwup.c")
+        "cmd_oth_fwup.c"
+        "cmd_oth_mqtt.c")
 endif()
 
 idf_component_register(

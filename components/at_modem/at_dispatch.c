@@ -205,6 +205,13 @@ static const at_dispatch_entry_t s_table[] = {
     { "FTPC_GET",     cmd_oth_ftpc_get,     false },
     { "OTA_VERCHECK", cmd_oth_ota_vercheck, false },
     { "OTA_REQUEST",  cmd_oth_ota_request,  false },
+    /* MQTT volume */
+    { "MQTT_GET",     cmd_oth_mqtt_get,     false },
+    { "MQTT_SET",     cmd_oth_mqtt_set,     false },
+    { "MQTT_CERT",    cmd_oth_mqtt_cert,    false },
+    { "MQTT_CONNECT", cmd_oth_mqtt_connect, false },
+    { "MQTT_PUB",     cmd_oth_mqtt_pub,     true }, /* message may contain spaces */
+    { "MQTT_SUB",     cmd_oth_mqtt_sub,     false },
 };
 #endif
 

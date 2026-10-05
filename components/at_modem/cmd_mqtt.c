@@ -29,6 +29,7 @@
 #include "at_uart.h"
 #include "fs_store.h"
 #include "mqtt_web.h"
+#include "sdkconfig.h"
 
 #define MQTT_MAX_LINKS 4
 #define MQTT_MAX_SUBS  10
@@ -604,7 +605,9 @@ void cmd_mqtt_clean(const at_command_t *cmd)
     at_event_post("MQTT_CLEAN:DONE");
 }
 
-/* ---- Web UI (cmd_httpd.c) integration -- always link_id 0. See mqtt_web.h. */
+/* ---- Web UI (cmd_httpd.c) integration -- always link_id 0. See mqtt_web.h.
+ * The OTH-AT build has its own (cmd_oth_mqtt.c). */
+#if !CONFIG_AT_MODEM_CMDSET_OTH
 
 void mqtt_web_get_status(mqtt_web_status_t *out)
 {
@@ -710,3 +713,4 @@ bool mqtt_web_configure_and_connect(int scheme, const char *host, int port,
     /* MQTT_EVENT_CONNECTED/DISCONNECTED/ERROR update l->connected
      * asynchronously -- poll mqtt_web_get_status() to observe it. */
 }
+#endif

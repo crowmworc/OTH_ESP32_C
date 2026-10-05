@@ -102,6 +102,14 @@ void cmd_oth_ftpc_set(const at_command_t *cmd);
 void cmd_oth_ftpc_get(const at_command_t *cmd);
 void cmd_oth_ota_vercheck(const at_command_t *cmd);
 void cmd_oth_ota_request(const at_command_t *cmd);
+/* MQTT volume -- cmd_oth_mqtt.c */
+void cmd_oth_mqtt_get(const at_command_t *cmd);
+void cmd_oth_mqtt_set(const at_command_t *cmd);
+void cmd_oth_mqtt_cert(const at_command_t *cmd);
+void cmd_oth_mqtt_connect(const at_command_t *cmd);
+void cmd_oth_mqtt_pub(const at_command_t *cmd);
+void cmd_oth_mqtt_sub(const at_command_t *cmd);
+void at_oth_mqtt_on_ip(void);
 /* Ch.2 / Appendix B -- cmd_oth_svc.c */
 void cmd_oth_mib(const at_command_t *cmd);
 void cmd_oth_setmib(const at_command_t *cmd);
