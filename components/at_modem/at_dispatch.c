@@ -4,6 +4,10 @@
 #include "at_parser.h"
 #include "at_response.h"
 #include "at_commands.h"
+#include "at_cmdset.h"
+#if CONFIG_AT_MODEM_CMDSET_OTH
+#include "at_commands_oth.h"
+#endif
 
 typedef void (*at_cmd_handler_t)(const at_command_t *cmd);
 
@@ -41,6 +45,7 @@ typedef struct {
  * AWS_PUB/AWS_SUB are fully implemented against AWS IoT's own documented
  * $aws/... topics, a real (not invented) protocol. Per
  * C:\Users\crowm\.claude\plans\tingly-gathering-parasol.md. */
+#if !CONFIG_AT_MODEM_CMDSET_OTH
 static const at_dispatch_entry_t s_table[] = {
     { "AT",           cmd_at,           false },
     { "ATE",          cmd_ate,          false },
@@ -115,6 +120,49 @@ static const at_dispatch_entry_t s_table[] = {
     { "AWS_PUB",       cmd_aws_pub,       false },
     { "AWS_SUB",       cmd_aws_sub,       false },
 };
+#else
+/* OTH-AT Compatible Command Set (Essentials/MQTT/AWS/COAP volumes). Each
+ * cmd_oth_*.c handler is a thin front end over the same Wi-Fi, socket and
+ * service code the M2M handlers use. */
+static const at_dispatch_entry_t s_table[] = {
+    { "AT",           cmd_at,           false },
+    { "ATE",          cmd_ate,          false },
+    /* Ch.2 Basic */
+    { "SWVER",        cmd_oth_swver,        false },
+    { "MAC",          cmd_oth_mac,          false },
+    { "RESET",        cmd_oth_reset,        false },
+    { "FACRESET",     cmd_oth_facreset,     false },
+    { "EVTDEL",       cmd_oth_evtdel,       false },
+    { "HWPS",         cmd_oth_hwps,         false },
+    { "ANTVER",       cmd_oth_antver,       false },
+    { "SETANT",       cmd_oth_setant,       false },
+    { "TXGAIN",       cmd_oth_txgain,       false },
+    { "COUNTRY",      cmd_oth_country,      false },
+    /* Ch.3 Wi-Fi */
+    { "MODE",         cmd_oth_mode,         false },
+    { "SCAN",         cmd_oth_scan,         false },
+    { "CRYPTO",       cmd_oth_crypto,       false },
+    { "WEP",          cmd_oth_wep,          false },
+    { "PSK",          cmd_oth_psk,          false },
+    { "ASSOCIATE",    cmd_oth_associate,    false },
+    { "DISASSOCIATE", cmd_oth_disassociate, false },
+    { "SCONN",        cmd_oth_sconn,        false },
+    { "AUCONMODE",    cmd_oth_auconmode,    false },
+    { "SMODE",        cmd_oth_smode,        false },
+    { "EAPSET",       cmd_oth_eapset,       false },
+    { "EAPCERT",      cmd_oth_eapcert,      false },
+    { "NWSTATUS",     cmd_oth_nwstatus,     false },
+    { "APSTART",      cmd_oth_apstart,      false },
+    { "APSTOP",       cmd_oth_apstop,       false },
+    { "APNSET",       cmd_oth_apnset,       false },
+    { "APLEASEIP",    cmd_oth_apleaseip,    false },
+    { "DHCPDSTART",   cmd_oth_dhcpdstart,   false },
+    { "DHCPDSTOP",    cmd_oth_dhcpdstop,    false },
+    { "WPS_PBC",      cmd_oth_wps_pbc,      false },
+    { "WPS_PIN",      cmd_oth_wps_pin,      false },
+    { "WPS_CANCEL",   cmd_oth_wps_cancel,   false },
+};
+#endif
 
 #define TABLE_LEN (sizeof(s_table) / sizeof(s_table[0]))
 
@@ -141,6 +189,6 @@ void at_dispatch_line(char *line)
     if (cmd.is_special) {
         at_reply_special_error();
     } else {
-        at_reply_error(cmd.name, AT_ERR_NOT_SUPPORTED);
+        at_reply_error(cmd.name, AT_ERR_UNKNOWN_CMD);
     }
 }

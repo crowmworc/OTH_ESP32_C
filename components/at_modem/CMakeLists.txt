@@ -1,5 +1,4 @@
-idf_component_register(
-    SRCS
+set(srcs
         "at_modem.c"
         "at_uart.c"
         "at_parser.c"
@@ -23,7 +22,16 @@ idf_component_register(
         "m2m_image_id.c"
         "cmd_ble_prov.c"
         "at_pem_scratch.c"
-        "web_auth.c"
+        "web_auth.c")
+# OTH-AT front end (Kconfig AT_MODEM_CMDSET), over the shared code above.
+if(CONFIG_AT_MODEM_CMDSET_OTH)
+    list(APPEND srcs
+        "cmd_oth_basic.c"
+        "cmd_oth_wifi.c")
+endif()
+
+idf_component_register(
+    SRCS ${srcs}
     INCLUDE_DIRS "include"
     PRIV_INCLUDE_DIRS "."
     PRIV_REQUIRES driver nvs_flash esp_hw_support lwip esp_driver_usb_serial_jtag

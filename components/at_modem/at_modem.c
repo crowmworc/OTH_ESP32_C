@@ -8,6 +8,10 @@
 #include "at_httpd.h"
 #include "fs_store.h"
 #include "at_ble_prov.h"
+#include "at_cmdset.h"
+#if CONFIG_AT_MODEM_CMDSET_OTH
+#include "at_commands_oth.h"
+#endif
 
 void at_modem_init(void)
 {
@@ -19,7 +23,15 @@ void at_modem_init(void)
     at_httpd_init();
     at_ble_prov_init();
 
-#if CONFIG_M2M_PWRON_NOTIFY
+#if CONFIG_AT_MODEM_CMDSET_OTH
+    at_oth_init();
+    /* OTH-AT Ch.7: DEVICEREADY once ready (suppressed by EVTDEL=1), then
+     * INITSCAN when a saved station profile is being rejoined. */
+    at_event_post("DEVICEREADY");
+    if (at_wifi_take_boot_autoconnect()) {
+        at_event_post("INITSCAN");
+    }
+#elif CONFIG_M2M_PWRON_NOTIFY
     /* Doc Ch.7.1: "*M2M*DEVICEREADY -- Module has booted and is ready for
      * commands." Sent last, once every subsystem above is actually usable.
      * Gated by the release-naming CONFIG segment's PWRON digit (M2M_SW

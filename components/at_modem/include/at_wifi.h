@@ -1,7 +1,10 @@
 #pragma once
 
 #include <stdbool.h>
+#include <stdint.h>
+#include "sdkconfig.h"
 #include "esp_netif.h"
+#include "esp_wifi_types.h"
 #include "cJSON.h"
 
 #ifdef __cplusplus
@@ -47,6 +50,28 @@ bool at_wifi_set_station_ip(bool dhcp, const char *ip, const char *netmask, cons
  * own, unlike a host-driven WF_CONN where the host is expected to manage
  * WF_APMODE itself). */
 void at_wifi_persist_apmode_sta(void);
+
+/* Shared station/SoftAP building blocks (cmd_wifi.c), used by the OTH-AT
+ * front end. at_wifi_ensure_sta_started() turns station mode on (keeping a
+ * running SoftAP) if it is off. */
+bool at_wifi_ensure_sta_started(void);
+bool at_wifi_sta_join(const wifi_config_t *cfg);
+bool at_wifi_sta_leave(void);
+bool at_wifi_sta_is_connected(void);
+bool at_wifi_start_softap(const char *ssid, uint8_t channel, wifi_auth_mode_t authmode,
+                          wifi_cipher_type_t cipher, const char *password);
+bool at_wifi_activate_saved_profile(void);
+/* WF_EAPCERT / OTH EAPCERT <type> <value> pairs; 0 or an AT_ERR_* code. */
+int  at_wifi_eapcert_apply(int argc, char *argv[]);
+
+#if CONFIG_AT_MODEM_CMDSET_OTH
+bool at_wifi_take_boot_autoconnect(void);
+int  at_wifi_oth_eapset(int argc, char *argv[]);
+/* Implemented in cmd_oth_wifi.c, called from cmd_wifi.c's event handler. */
+void at_oth_wifi_on_start(wifi_interface_t ifx);
+bool at_oth_wifi_autoconnect_enabled(void);
+int  at_oth_wifi_assoc_result(uint8_t esp_reason);
+#endif
 
 #ifdef __cplusplus
 }

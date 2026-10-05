@@ -162,7 +162,7 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
             topic[tlen] = '\0';
 
             char header[200];
-            int hlen = snprintf(header, sizeof(header), "*M2M*MQTT_RECV:IND %d %s %d ",
+            int hlen = snprintf(header, sizeof(header), AT_TAG "MQTT_RECV:IND %d %s %d ",
                                  link_id, topic, event->data_len);
             if (hlen > 0 && (size_t)hlen < sizeof(header)) {
                 at_uart_write_atomic2(header, (size_t)hlen, event->data, (size_t)event->data_len);

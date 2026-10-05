@@ -540,7 +540,7 @@ static void aws_event_handler(void *handler_args, esp_event_base_t base, int32_t
             memcpy(topic, event->topic, (size_t)tlen);
             topic[tlen] = '\0';
             char header[200];
-            int hlen = snprintf(header, sizeof(header), "*M2M*AWS_MSG:DONE %d \"%s\" %d\r\n",
+            int hlen = snprintf(header, sizeof(header), AT_TAG "AWS_MSG:DONE %d \"%s\" %d\r\n",
                                  link_id, topic, event->data_len);
             if (hlen > 0 && (size_t)hlen < sizeof(header)) {
                 at_uart_write_atomic2(header, (size_t)hlen, event->data, (size_t)event->data_len);
@@ -674,7 +674,7 @@ void cmd_aws_pub(const at_command_t *cmd)
         return;
     }
 
-    at_uart_write_str("*M2M*AWS_PUB:OK\r\n> ");
+    at_uart_write_str(AT_TAG "AWS_PUB:OK\r\n> ");
 
     static uint8_t buf[8192];
     if (!at_uart_read_raw(buf, (size_t)data_len, 10000)) {

@@ -1,4 +1,19 @@
-menu "AT Modem (M2M-AT Command Set)"
+menu "AT Modem (M2M-AT / OTH-AT Command Set)"
+
+    choice AT_MODEM_CMDSET
+        prompt "AT command set"
+        default AT_MODEM_CMDSET_M2M
+        help
+            Which AT command set the module answers to. Fixed at build time:
+            only the chosen set's command handlers are linked in, which
+            saves flash and RAM. Wi-Fi, sockets, HTTP, MQTT, AWS IoT, the
+            configuration web server and the security features are shared.
+
+        config AT_MODEM_CMDSET_M2M
+            bool "M2M-AT (AT*M2M*...)"
+        config AT_MODEM_CMDSET_OTH
+            bool "OTH-AT (AT*OTH*...)"
+    endchoice
 
     config AT_MODEM_UART_USE_USB_SERIAL_JTAG
         bool "Carry AT commands over the native USB Serial/JTAG port instead of a physical UART"

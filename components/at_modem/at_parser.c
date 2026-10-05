@@ -2,10 +2,11 @@
 #include <strings.h>
 
 #include "at_parser.h"
+#include "at_cmdset.h"
 
-/* "AT*M2M*" prefix length: A T * M 2 M * */
-#define M2M_PREFIX     "AT*M2M*"
-#define M2M_PREFIX_LEN 7
+/* "AT*M2M*" or "AT*OTH*", per the build's command set (at_cmdset.h) */
+#define CMD_PREFIX     "AT" AT_TAG
+#define CMD_PREFIX_LEN (2 + AT_TAG_LEN)
 
 int at_tokenize_params(char *p, char *argv[], int max_argv)
 {
@@ -60,9 +61,9 @@ bool at_parse_line(char *line, at_command_t *out)
         return true;
     }
 
-    if (strncasecmp(rest, M2M_PREFIX + 2, M2M_PREFIX_LEN - 2) == 0) {
-        /* "AT*M2M*<NAME>[=<params>]" */
-        rest += (M2M_PREFIX_LEN - 2);
+    if (strncasecmp(rest, CMD_PREFIX + 2, CMD_PREFIX_LEN - 2) == 0) {
+        /* "AT*M2M*<NAME>[=<params>]" (or AT*OTH*) */
+        rest += (CMD_PREFIX_LEN - 2);
         char *eq = strchr(rest, '=');
         size_t name_len = eq ? (size_t)(eq - rest) : strlen(rest);
         if (name_len == 0 || name_len >= AT_CMD_NAME_LEN) {

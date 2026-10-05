@@ -14,6 +14,7 @@
 
 #include "net_link.h"
 #include "at_uart.h"
+#include "at_cmdset.h"
 #include "at_event.h"
 #include "fs_store.h"
 #include "at_pem_scratch.h"
@@ -701,7 +702,7 @@ static void handle_readable_data_link(int id)
     }
 
     char header[64];
-    int hlen = snprintf(header, sizeof(header), "*M2M*NET_RECV:IND %d %s %d %d ",
+    int hlen = snprintf(header, sizeof(header), AT_TAG "NET_RECV:IND %d %s %d %d ",
                          id, ip, port, (int)n);
     char crlf[2] = {'\r', '\n'};
     /* Payload is raw, un-stuffed bytes per doc Ch.1.4 -- write it verbatim,

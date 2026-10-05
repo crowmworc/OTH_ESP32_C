@@ -11,6 +11,7 @@
 
 #include "at_event.h"
 #include "at_uart.h"
+#include "at_cmdset.h"
 
 static const char *TAG = "at_event";
 
@@ -52,7 +53,7 @@ void at_event_post(const char *fmt, ...)
     }
 
     at_event_msg_t msg;
-    int n = snprintf(msg.line, sizeof(msg.line), "*M2M*");
+    int n = snprintf(msg.line, sizeof(msg.line), AT_TAG);
     va_list ap;
     va_start(ap, fmt);
     n += vsnprintf(msg.line + n, sizeof(msg.line) - n, fmt, ap);

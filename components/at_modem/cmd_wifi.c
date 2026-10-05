@@ -31,6 +31,7 @@
 #include "at_nvs_kv.h"
 #include "fs_store.h"
 #include "at_pem_scratch.h"
+#include "at_cmdset.h"
 
 static const char *TAG = "at_wifi";
 
@@ -57,6 +58,20 @@ static atomic_bool s_disconnect_requested = false;
 static atomic_int s_auth_retries = 0;
 static esp_timer_handle_t s_auth_retry_timer;
 
+/* True between WIFI_EVENT_STA_CONNECTED and the next STA_DISCONNECTED, so a
+ * disconnect can be told apart from a join attempt that never succeeded
+ * (OTH-AT reports the two differently: DISASSOCIATED vs ASSOCIATED:<n>). */
+static atomic_bool s_sta_connected = false;
+
+#if CONFIG_AT_MODEM_CMDSET_OTH
+/* OTH-AT AUCONMODE: with auto-connect on, a lost link is rejoined by the
+ * module itself (every OTH_RECONNECT_DELAY_US until it succeeds or the host
+ * sends DISASSOCIATE / a new join). */
+#define OTH_RECONNECT_DELAY_US (5 * 1000 * 1000)
+static esp_timer_handle_t s_reconnect_timer;
+static bool s_boot_autoconnect;
+#endif
+
 static void auth_retry_timer_cb(void *arg)
 {
     (void)arg;
@@ -69,6 +84,11 @@ static void auth_retry_reset(void)
         esp_timer_stop(s_auth_retry_timer); /* ESP_ERR_INVALID_STATE if idle -- fine */
     }
     atomic_store(&s_auth_retries, 0);
+#if CONFIG_AT_MODEM_CMDSET_OTH
+    if (s_reconnect_timer) {
+        esp_timer_stop(s_reconnect_timer);
+    }
+#endif
 }
 
 /* Doc's Wi-Fi auth enum (Ch.3.2) diverges from ESP-IDF's wifi_auth_mode_t
@@ -108,7 +128,7 @@ static int map_disconnect_reason_to_doc(uint8_t esp_reason)
 /* ---- AT*M2M*WF_APMODE storage + profile activation ------------------
  * Backing store (m2m_sys NVS namespace, wiped along with everything else
  * by AT*M2M*SYS_FACTORY) for the profile AT*M2M*WF_APMODE saves/replays.
- * "target" tells apmode_activate_saved_profile() whether the saved
+ * "target" tells at_wifi_activate_saved_profile() whether the saved
  * profile is a station or a SoftAP one -- the doc's own type values only
  * disambiguate this for type 2 (explicit SoftAP); type 1 ("activate the
  * predefined profile") replays whichever target was saved last. */
@@ -124,7 +144,12 @@ static bool wifi_cred_lengths_ok(const char *ssid, const char *password)
     return ssid && ssid[0] && strlen(ssid) <= 32 && (pw_len == 0 || (pw_len >= 8 && pw_len <= 64));
 }
 
-static bool apmode_start_ap(const char *ssid, uint8_t channel, const char *password)
+/* Configures and starts a SoftAP, keeping station mode if it is on.
+ * authmode is used only with a password (an empty one means open); cipher
+ * WIFI_CIPHER_TYPE_UNKNOWN leaves the driver default. Shared by
+ * apmode_start_ap() and OTH-AT APSTART/SMODE. */
+bool at_wifi_start_softap(const char *ssid, uint8_t channel, wifi_auth_mode_t authmode,
+                          wifi_cipher_type_t cipher, const char *password)
 {
     if (!wifi_cred_lengths_ok(ssid, password)) {
         return false;
@@ -139,7 +164,10 @@ static bool apmode_start_ap(const char *ssid, uint8_t channel, const char *passw
             return false;
         }
         strlcpy((char *)ap_cfg.ap.password, password, sizeof(ap_cfg.ap.password));
-        ap_cfg.ap.authmode = WIFI_AUTH_WPA2_PSK;
+        ap_cfg.ap.authmode = (authmode == WIFI_AUTH_OPEN) ? WIFI_AUTH_WPA2_PSK : authmode;
+        if (cipher != WIFI_CIPHER_TYPE_UNKNOWN) {
+            ap_cfg.ap.pairwise_cipher = cipher;
+        }
     } else {
 #if !CONFIG_AT_MODEM_SOFTAP_ALLOW_OPEN
         return false; /* open (unauthenticated) SoftAP disabled in this build */
@@ -155,6 +183,11 @@ static bool apmode_start_ap(const char *ssid, uint8_t channel, const char *passw
     return esp_wifi_set_mode(new_mode) == ESP_OK &&
            esp_wifi_set_config(WIFI_IF_AP, &ap_cfg) == ESP_OK &&
            esp_wifi_start() == ESP_OK;
+}
+
+static bool apmode_start_ap(const char *ssid, uint8_t channel, const char *password)
+{
+    return at_wifi_start_softap(ssid, channel, WIFI_AUTH_WPA2_PSK, WIFI_CIPHER_TYPE_UNKNOWN, password);
 }
 
 /* Replays the station profile esp_wifi already has persisted in flash
@@ -178,9 +211,9 @@ static bool apmode_start_sta(void)
     return esp_wifi_connect() == ESP_OK;
 }
 
-/* Shared by cmd_wf_apmode() (type 1) and at_wifi_init()'s boot-time
- * auto-reconnect. */
-static bool apmode_activate_saved_profile(void)
+/* Shared by cmd_wf_apmode() (type 1), at_wifi_init()'s boot-time
+ * auto-reconnect and OTH-AT AUCONMODE/SMODE. */
+bool at_wifi_activate_saved_profile(void)
 {
     uint16_t target = APMODE_TARGET_STA;
     m2m_nvs_get_u16("apm_target", &target);
@@ -210,11 +243,31 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, voi
         switch (id) {
         case WIFI_EVENT_STA_CONNECTED:
             auth_retry_reset();
+            atomic_store(&s_sta_connected, true);
+#if CONFIG_AT_MODEM_CMDSET_OTH
+            at_event_post("ASSOCIATED:0");
+#else
             at_event_post("WF_CONN:DONE");
+#endif
             break;
 
+#if CONFIG_AT_MODEM_CMDSET_OTH
+        case WIFI_EVENT_STA_START:
+            at_oth_wifi_on_start(WIFI_IF_STA);
+            break;
+        case WIFI_EVENT_AP_START:
+            at_oth_wifi_on_start(WIFI_IF_AP);
+            break;
+#endif
+
         case WIFI_EVENT_STA_DISCONNECTED: {
+            bool was_connected = atomic_exchange(&s_sta_connected, false);
             if (atomic_exchange(&s_disconnect_requested, false)) {
+#if CONFIG_AT_MODEM_CMDSET_OTH
+                if (was_connected) {
+                    at_event_post("DISASSOCIATED"); /* "lost or closed" */
+                }
+#endif
                 break; /* host-initiated via AT*M2M*WF_DISCONN -- no async notice */
             }
             const wifi_event_sta_disconnected_t *ev = (const wifi_event_sta_disconnected_t *)data;
@@ -231,7 +284,21 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, voi
                     break;
                 }
             }
+#if CONFIG_AT_MODEM_CMDSET_OTH
+            if (was_connected) {
+                at_event_post("DISASSOCIATED");
+                if (at_oth_wifi_autoconnect_enabled() && s_reconnect_timer) {
+                    esp_timer_start_once(s_reconnect_timer, OTH_RECONNECT_DELAY_US);
+                }
+            } else if (ev->reason != WIFI_REASON_STA_LEAVING && ev->reason != WIFI_REASON_ASSOC_LEAVE) {
+                /* (the module leaving by itself, e.g. WPS starting, is no
+                 * failed join) */
+                at_event_post("ASSOCIATED:%d", at_oth_wifi_assoc_result(ev->reason));
+            }
+#else
+            (void)was_connected;
             at_event_post("WF_DISCONN:DONE %d", doc_reason);
+#endif
             break;
         }
 
@@ -252,8 +319,10 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, voi
         }
 
         case WIFI_EVENT_AP_STADISCONNECTED: {
+#if !CONFIG_AT_MODEM_CMDSET_OTH /* OTH-AT has no "station left" message */
             const wifi_event_ap_stadisconnected_t *ev = (const wifi_event_ap_stadisconnected_t *)data;
             at_event_post("STA_DISASSOCIATED:" MACSTR, MAC2STR(ev->mac));
+#endif
             break;
         }
 
@@ -289,9 +358,15 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, voi
         case WIFI_EVENT_STA_WPS_ER_TIMEOUT:
         case WIFI_EVENT_STA_WPS_ER_PBC_OVERLAP: {
             esp_wifi_wps_disable();
+#if CONFIG_AT_MODEM_CMDSET_OTH
+            /* OTH-AT has no WPS message: a session that never joins ends as
+             * a failed association -- 3 (timeout) or 1 (failure). */
+            at_event_post("ASSOCIATED:%d", (id == WIFI_EVENT_STA_WPS_ER_TIMEOUT) ? 3 : 1);
+#else
             int reason = (id == WIFI_EVENT_STA_WPS_ER_TIMEOUT) ? 1 :
                          (id == WIFI_EVENT_STA_WPS_ER_PBC_OVERLAP) ? 2 : 0;
             at_event_post("WF_WPS:DONE %d", reason);
+#endif
             break;
         }
 
@@ -303,7 +378,9 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, voi
             char pin[9];
             memcpy(pin, ev->pin_code, 8);
             pin[8] = '\0';
+#if !CONFIG_AT_MODEM_CMDSET_OTH
             at_event_post("WF_WPS:IND %s", pin);
+#endif
             break;
         }
 
@@ -322,10 +399,19 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, voi
          * and the Ch.8.1 usage examples call it "IPALLOCATED" -- three
          * spellings for one event in the doc as written; standardized on
          * the Ch.7.1 summary-table name per decision 2026-08-29.) */
+#if CONFIG_AT_MODEM_CMDSET_OTH
+        at_event_post("IPALLOCATED:" IPSTR " " IPSTR " " IPSTR " " IPSTR,
+#else
         at_event_post("NET_IP:IND " IPSTR " " IPSTR " " IPSTR " " IPSTR,
+#endif
                       IP2STR(&ev->ip_info.ip), IP2STR(&ev->ip_info.netmask),
                       IP2STR(&ev->ip_info.gw), IP2STR(&dns.ip.u_addr.ip4));
     }
+#if CONFIG_AT_MODEM_CMDSET_OTH
+    if (base == IP_EVENT && id == IP_EVENT_STA_LOST_IP) {
+        at_event_post("IPRELEASED");
+    }
+#endif
 }
 
 void at_wifi_init(void)
@@ -346,6 +432,12 @@ void at_wifi_init(void)
                                                           &wifi_event_handler, NULL, NULL));
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_GOT_IP,
                                                           &wifi_event_handler, NULL, NULL));
+#if CONFIG_AT_MODEM_CMDSET_OTH
+    ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_LOST_IP,
+                                                          &wifi_event_handler, NULL, NULL));
+    const esp_timer_create_args_t reconnect_args = { .callback = auth_retry_timer_cb, .name = "wifi_reconn" };
+    ESP_ERROR_CHECK(esp_timer_create(&reconnect_args, &s_reconnect_timer));
+#endif
 
     char cc[4] = "";
     size_t len = sizeof(cc);
@@ -358,7 +450,14 @@ void at_wifi_init(void)
      * an unset query). Mode 2 (light sleep) is never stored -- cmd_sys.c
      * rejects it before persisting -- so only 0/1/3 can reach here. */
     uint16_t lsleep_mode = 0;
+#if CONFIG_AT_MODEM_CMDSET_OTH
+    /* OTH-AT HWPS default is "automatic" (modem sleep, M2M numbering 1) */
+    if (m2m_nvs_get_u16("lsleep", &lsleep_mode) != ESP_OK) {
+        lsleep_mode = 1;
+    }
+#else
     m2m_nvs_get_u16("lsleep", &lsleep_mode);
+#endif
     wifi_ps_type_t lsleep_ps = WIFI_PS_NONE;
     if (lsleep_mode == 1) {
         lsleep_ps = WIFI_PS_MIN_MODEM;
@@ -373,7 +472,12 @@ void at_wifi_init(void)
     uint16_t apm_type = 0;
     m2m_nvs_get_u16("apm_type", &apm_type);
     if (apm_type != 0) {
-        if (apmode_activate_saved_profile()) {
+        if (at_wifi_activate_saved_profile()) {
+#if CONFIG_AT_MODEM_CMDSET_OTH
+            uint16_t target = APMODE_TARGET_STA;
+            m2m_nvs_get_u16("apm_target", &target);
+            s_boot_autoconnect = (target == APMODE_TARGET_STA);
+#endif
             ESP_LOGI(TAG, "Wi-Fi driver ready, WF_APMODE=%u auto-reconnect activated", apm_type);
         } else {
             esp_wifi_set_mode(WIFI_MODE_NULL);
@@ -443,7 +547,7 @@ void cmd_wf_mode(const at_command_t *cmd)
  * SoftAP) after a reboot, per the selected type.
  * type: 0-init (clear the saved profile, disable auto-reconnect);
  *       1-activate the predefined profile (whichever station or SoftAP
- *         profile was saved last -- see apmode_activate_saved_profile());
+ *         profile was saved last -- see at_wifi_activate_saved_profile());
  *       2-start a SoftAP with the given ssid/channel/password and save
  *         it as the new predefined profile.
  * The doc's Query response is "*M2M*WF_APMODE:OK [type] [ssid] [channel]
@@ -497,7 +601,7 @@ void cmd_wf_apmode(const at_command_t *cmd)
     }
 
     if (type == 1) {
-        if (!apmode_activate_saved_profile()) {
+        if (!at_wifi_activate_saved_profile()) {
             at_reply_error(cmd->name, AT_ERR_STATE); /* no predefined profile saved yet */
             return;
         }
@@ -641,7 +745,7 @@ void cmd_wf_conn(const at_command_t *cmd)
  * for a friendlier one-step web UX -- the AT command handlers above are
  * untouched, so existing AT behavior/tests are unaffected. */
 
-static bool wifi_web_ensure_sta_started(void)
+bool at_wifi_ensure_sta_started(void)
 {
     wifi_mode_t mode;
     esp_wifi_get_mode(&mode);
@@ -655,7 +759,7 @@ static bool wifi_web_ensure_sta_started(void)
  * {ssid,rssi,channel,authmode,secure}, or NULL on failure. */
 cJSON *at_wifi_web_scan(void)
 {
-    if (!wifi_web_ensure_sta_started()) {
+    if (!at_wifi_ensure_sta_started()) {
         return NULL;
     }
     if (esp_wifi_scan_start(NULL, true) != ESP_OK) {
@@ -690,7 +794,7 @@ cJSON *at_wifi_web_scan(void)
 /* Plain WPA-PSK/open connect, for the web UI's Wi-Fi screen. */
 bool at_wifi_web_connect_psk(const char *ssid, const char *password)
 {
-    if (!wifi_cred_lengths_ok(ssid, password) || !wifi_web_ensure_sta_started()) {
+    if (!wifi_cred_lengths_ok(ssid, password) || !at_wifi_ensure_sta_started()) {
         return false;
     }
     wifi_config_t wifi_cfg = {0};
@@ -734,6 +838,7 @@ static char s_eap_id[65] = "";
 static char s_eap_password[129] = "";
 static char s_eap_cert_file[17] = "";  /* WF_EAPCERT type 3, paired with 4 */
 static char s_eap_key_file[17] = "";   /* WF_EAPCERT type 4 */
+static char s_eap_key_password[129] = ""; /* OTH-AT EAPSET field 3; empty: use s_eap_password */
 
 /* out_len (optional) receives the raw file byte count (excludes the NUL
  * this appends at out[n]) -- callers passing PEM text to mbedtls-backed
@@ -867,7 +972,7 @@ bool at_wifi_web_connect_enterprise(const char *ssid, const char *method,
         (identity && strlen(identity) >= sizeof(s_eap_id)) ||
         (anonymous_identity && strlen(anonymous_identity) >= sizeof(s_eap_id)) ||
         (username && strlen(username) >= sizeof(s_eap_id)) ||
-        (password && strlen(password) >= sizeof(s_eap_password)) || !wifi_web_ensure_sta_started()) {
+        (password && strlen(password) >= sizeof(s_eap_password)) || !at_wifi_ensure_sta_started()) {
         return false;
     }
     esp_eap_method_t eap_bit;
@@ -1011,7 +1116,7 @@ void cmd_wf_eapconf(const at_command_t *cmd)
  * Requires WF_EAPCONF to have run first (needs a method/id staged).
  * The doc's own example reply reads "*M2M*WF_CERT:OK" -- a doc typo (every
  * other reference in Ch.3.2 says WF_EAPCERT); not reproduced here. */
-void cmd_wf_eapcert(const at_command_t *cmd)
+int at_wifi_eapcert_apply(int argc, char *argv[])
 {
     char *pac_pem = g_at_pem_scratch; /* shared scratch, see at_pem_scratch.h --
                                         * esp_eap_client_set_pac_file() below
@@ -1021,18 +1126,16 @@ void cmd_wf_eapcert(const at_command_t *cmd)
                                         * which keep the raw pointer and so
                                         * stay as their own persistent statics). */
 
-    if (cmd->argc < 2 || cmd->argc % 2 != 0) {
-        at_reply_error(cmd->name, AT_ERR_ARG);
-        return;
+    if (argc < 2 || argc % 2 != 0) {
+        return AT_ERR_ARG;
     }
     if (s_eap_method[0] == '\0') {
-        at_reply_error(cmd->name, AT_ERR_STATE); /* WF_EAPCONF must run first */
-        return;
+        return AT_ERR_STATE; /* WF_EAPCONF must run first */
     }
 
-    for (int i = 0; i < cmd->argc; i += 2) {
-        int type = atoi(cmd->argv[i]);
-        const char *value = cmd->argv[i + 1];
+    for (int i = 0; i < argc; i += 2) {
+        int type = atoi(argv[i]);
+        const char *value = argv[i + 1];
 
         switch (type) {
         case 0: {
@@ -1043,8 +1146,7 @@ void cmd_wf_eapcert(const at_command_t *cmd)
             else if (strcasecmp(value, "PAP") == 0)      phase2 = ESP_EAP_TTLS_PHASE2_PAP;
             else if (strcasecmp(value, "CHAP") == 0)     phase2 = ESP_EAP_TTLS_PHASE2_CHAP;
             else {
-                at_reply_error(cmd->name, AT_ERR_ARG);
-                return;
+                return AT_ERR_ARG;
             }
             esp_eap_client_set_ttls_phase2_method(phase2);
             break;
@@ -1053,33 +1155,28 @@ void cmd_wf_eapcert(const at_command_t *cmd)
             break; /* PEAP phase-1 label -- no ESP-IDF equivalent */
         case 2: {
             if (strlen(value) > 16 || !fs_store_exists(value)) {
-                at_reply_error(cmd->name, AT_ERR_ARG);
-                return;
+                return AT_ERR_ARG;
             }
             if (!load_and_set_ca_cert(value)) {
-                at_reply_error(cmd->name, AT_ERR_GENERIC);
-                return;
+                return AT_ERR_GENERIC;
             }
             break;
         }
         case 3:
             if (strlen(value) > 16 || !fs_store_exists(value)) {
-                at_reply_error(cmd->name, AT_ERR_ARG);
-                return;
+                return AT_ERR_ARG;
             }
             strlcpy(s_eap_cert_file, value, sizeof(s_eap_cert_file));
             break;
         case 4:
             if (strlen(value) > 16 || !fs_store_exists(value)) {
-                at_reply_error(cmd->name, AT_ERR_ARG);
-                return;
+                return AT_ERR_ARG;
             }
             strlcpy(s_eap_key_file, value, sizeof(s_eap_key_file));
             break;
         case 5: {
             if (strlen(value) > 16 || !fs_store_exists(value)) {
-                at_reply_error(cmd->name, AT_ERR_ARG);
-                return;
+                return AT_ERR_ARG;
             }
             /* PAC is an opaque binary blob, not PEM text -- use the raw
              * file length (not strlen(), which would truncate at the
@@ -1088,26 +1185,33 @@ void cmd_wf_eapcert(const at_command_t *cmd)
             size_t pac_pem_len;
             if (!load_cert_file(value, pac_pem, AT_PEM_SCRATCH_LEN, &pac_pem_len) ||
                 esp_eap_client_set_pac_file((const unsigned char *)pac_pem, (int)pac_pem_len) != ESP_OK) {
-                at_reply_error(cmd->name, AT_ERR_GENERIC);
-                return;
+                return AT_ERR_GENERIC;
             }
             break;
         }
         default:
-            at_reply_error(cmd->name, AT_ERR_ARG);
-            return;
+            return AT_ERR_ARG;
         }
     }
 
     if (s_eap_cert_file[0] != '\0' && s_eap_key_file[0] != '\0') {
-        if (!load_and_set_cert_and_key(s_eap_cert_file, s_eap_key_file, s_eap_password)) {
-            at_reply_error(cmd->name, AT_ERR_GENERIC);
-            return;
+        if (!load_and_set_cert_and_key(s_eap_cert_file, s_eap_key_file,
+                                       s_eap_key_password[0] ? s_eap_key_password : s_eap_password)) {
+            return AT_ERR_GENERIC;
         }
     }
 
     if (eap_enable_with_server_validation() != ESP_OK) {
-        at_reply_error(cmd->name, AT_ERR_GENERIC);
+        return AT_ERR_GENERIC;
+    }
+    return 0;
+}
+
+void cmd_wf_eapcert(const at_command_t *cmd)
+{
+    int err = at_wifi_eapcert_apply(cmd->argc, (char **)cmd->argv);
+    if (err) {
+        at_reply_error(cmd->name, err);
         return;
     }
     at_reply_ok(cmd->name, NULL);
@@ -1353,3 +1457,114 @@ void cmd_wf_wps(const at_command_t *cmd)
     at_reply_ok(cmd->name, NULL);
 }
 
+/* ---- OTH-AT integration helpers -----------------------------------------
+ * Station join/leave in the shape OTH-AT needs (it has no WF_MODE: a join
+ * switches station mode on by itself), plus EAPSET, which stages the same
+ * esp_eap_client_* settings WF_EAPCONF does but field by field. */
+
+/* Joins with an already-filled station config. */
+bool at_wifi_sta_join(const wifi_config_t *cfg)
+{
+    if (!at_wifi_ensure_sta_started()) {
+        return false;
+    }
+    if (esp_wifi_set_config(WIFI_IF_STA, (wifi_config_t *)cfg) != ESP_OK) {
+        return false;
+    }
+    atomic_store(&s_disconnect_requested, false);
+    auth_retry_reset();
+    return esp_wifi_connect() == ESP_OK;
+}
+
+bool at_wifi_sta_leave(void)
+{
+    atomic_store(&s_disconnect_requested, true);
+    auth_retry_reset();
+    if (esp_wifi_disconnect() != ESP_OK) {
+        atomic_store(&s_disconnect_requested, false);
+        return false;
+    }
+    return true;
+}
+
+bool at_wifi_sta_is_connected(void)
+{
+    return atomic_load(&s_sta_connected);
+}
+
+#if CONFIG_AT_MODEM_CMDSET_OTH
+/* True once, right after boot, when a saved station profile is being
+ * rejoined (OTH-AT *OTH*INITSCAN). */
+bool at_wifi_take_boot_autoconnect(void)
+{
+    bool v = s_boot_autoconnect;
+    s_boot_autoconnect = false;
+    return v;
+}
+
+/* OTH-AT EAPSET field/value pairs. field 0: method, 1: identity (inner user
+ * name), 2: anonymous (outer) identity, 3: private-key password, 4: EAP
+ * password. Returns 0 or an OTH Appendix A error code. */
+int at_wifi_oth_eapset(int argc, char *argv[])
+{
+    if (argc < 2 || argc % 2 != 0) {
+        return 8; /* ERR_GENERAL_PARAM_INVALID */
+    }
+    for (int i = 0; i < argc; i += 2) {
+        int field = atoi(argv[i]);
+        const char *v = argv[i + 1];
+        size_t len = strlen(v);
+        switch (field) {
+        case 0: {
+            esp_eap_method_t bit;
+            if (!map_eap_method(v, &bit)) {
+                return 5; /* ERR_WIFI_CONFIG_PARAM_INVALID (incl. leap: not in ESP-IDF) */
+            }
+            if (esp_eap_client_set_eap_methods(bit) != ESP_OK) {
+                return 5;
+            }
+            strlcpy(s_eap_method, v, sizeof(s_eap_method));
+            break;
+        }
+        case 1:
+            if (len == 0 || len > 64 ||
+                esp_eap_client_set_username((const unsigned char *)v, (int)len) != ESP_OK) {
+                return 5;
+            }
+            if (s_eap_id[0] == '\0') { /* outer identity too, unless field 2 sets one */
+                esp_eap_client_set_identity((const unsigned char *)v, (int)len);
+            }
+            break;
+        case 2:
+            if (len == 0 || len > 64 ||
+                esp_eap_client_set_identity((const unsigned char *)v, (int)len) != ESP_OK) {
+                return 5;
+            }
+            strlcpy(s_eap_id, v, sizeof(s_eap_id));
+            break;
+        case 3:
+            if (len > 128) {
+                return 5;
+            }
+            strlcpy(s_eap_key_password, v, sizeof(s_eap_key_password));
+            break;
+        case 4:
+            if (len > 128) {
+                return 5;
+            }
+            if (len) {
+                if (esp_eap_client_set_password((const unsigned char *)v, (int)len) != ESP_OK) {
+                    return 5;
+                }
+            } else {
+                esp_eap_client_clear_password();
+            }
+            strlcpy(s_eap_password, v, sizeof(s_eap_password));
+            break;
+        default:
+            return 8;
+        }
+    }
+    return eap_enable_with_server_validation() == ESP_OK ? 0 : 5;
+}
+#endif

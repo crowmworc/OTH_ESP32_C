@@ -305,7 +305,7 @@ static void http_worker(void *arg)
              * defines stuffing for NET_SEND/AWS_PUB) -- write it verbatim
              * like NET_RECV:IND does, not through a %s/printf path. */
             char header[64];
-            int hlen = snprintf(header, sizeof(header), "*M2M*%s:IND %d %d ", name, status, (int)total);
+            int hlen = snprintf(header, sizeof(header), AT_TAG "%s:IND %d %d ", name, status, (int)total);
             if (hlen > 0 && (size_t)hlen < sizeof(header)) {
                 at_uart_write_atomic2(header, (size_t)hlen, (const char *)buf, total);
                 at_uart_write("\r\n", 2);

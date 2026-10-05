@@ -28,6 +28,8 @@ void cmd_sys_conf(const at_command_t *cmd);
 void cmd_sys_country(const at_command_t *cmd);
 void cmd_sys_lsleep(const at_command_t *cmd);
 void cmd_sys_antenna(const at_command_t *cmd);
+/* NVS wipe shared by SYS_FACTORY and OTH-AT FACRESET */
+void at_sys_nv_erase(void);
 
 /* cmd_wifi.c -- Wi-Fi AT Commands (doc Ch.3: Common, Station, SoftAP) */
 void cmd_wf_mode(const at_command_t *cmd);

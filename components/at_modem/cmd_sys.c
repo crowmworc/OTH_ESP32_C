@@ -84,6 +84,14 @@ void cmd_sys_rst(const at_command_t *cmd)
     esp_restart();
 }
 
+/* Wipes the whole NVS partition (encrypted: keys stay derivable from the
+ * eFuse HMAC key) and reopens it. Shared with OTH-AT FACRESET. */
+void at_sys_nv_erase(void)
+{
+    nvs_flash_erase();
+    nvs_flash_init();
+}
+
 /* AT*M2M*SYS_FACTORY=<cmd> -- cmd: 0-erase NV; 1-erase NV and restart.
  * Erases the whole NVS partition (our own m2m_sys namespace, Wi-Fi
  * credentials, everything) -- that's the "factory defaults" this doc
@@ -103,8 +111,7 @@ void cmd_sys_factory(const at_command_t *cmd)
     at_reply_ok(cmd->name, NULL);
     vTaskDelay(pdMS_TO_TICKS(100));
 
-    nvs_flash_erase();
-    nvs_flash_init();
+    at_sys_nv_erase();
 
     if (mode == 1) {
         vTaskDelay(pdMS_TO_TICKS(100));

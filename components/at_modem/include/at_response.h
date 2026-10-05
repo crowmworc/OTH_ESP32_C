@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "at_uart.h"
+#include "at_cmdset.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -23,7 +24,7 @@ extern "C" {
 static inline void at_reply_ok(const char *cmd, const char *fmt, ...)
 {
     char line[256];
-    int n = snprintf(line, sizeof(line), "*M2M*%s:OK", cmd);
+    int n = snprintf(line, sizeof(line), AT_TAG "%s:OK", cmd);
     if (fmt && n > 0 && n < (int)sizeof(line)) {
         va_list ap;
         va_start(ap, fmt);
@@ -43,9 +44,9 @@ static inline void at_reply_error(const char *cmd, int code)
     char line[64];
     int len;
     if (code >= 0) {
-        len = snprintf(line, sizeof(line), "*M2M*%s:ERROR %d\r\n", cmd, code);
+        len = snprintf(line, sizeof(line), AT_TAG "%s:ERROR %d\r\n", cmd, code);
     } else {
-        len = snprintf(line, sizeof(line), "*M2M*%s:ERROR\r\n", cmd);
+        len = snprintf(line, sizeof(line), AT_TAG "%s:ERROR\r\n", cmd);
     }
     at_uart_write(line, (size_t)len);
 }
@@ -76,7 +77,7 @@ static inline void at_reply_special_error(void)
 static inline void at_reply_line(const char *fmt, ...)
 {
     char line[300];
-    int n = snprintf(line, sizeof(line), "*M2M*");
+    int n = snprintf(line, sizeof(line), AT_TAG);
     va_list ap;
     va_start(ap, fmt);
     n += vsnprintf(line + n, sizeof(line) - n, fmt, ap);
