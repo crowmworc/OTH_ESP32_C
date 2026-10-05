@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>M2M Services &mdash; ESP32</title>
+<style>
+:root{
+  --bg:#14171c; --surface:#1b1f26; --surface-2:#21262f; --line:#2c323c;
+  --text:#e8e6e1; --text-dim:#8b93a0; --copper:#c97c4c; --ok:#7fb88f;
+  --warn:#d9a441; --danger:#d97757;
+  --mono:'IBM Plex Mono','SFMono-Regular',Consolas,monospace;
+  --sans:'Inter',-apple-system,sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap');
+body{background:radial-gradient(ellipse at top,#1a1e25 0%,var(--bg) 55%);color:var(--text);font-family:var(--sans);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:28px 16px}
+.device{width:100%;max-width:780px}
+.plate{border:1px solid var(--line);border-bottom:none;border-radius:3px 3px 0 0;padding:14px 18px;display:flex;justify-content:space-between;align-items:center;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--text-dim);background:repeating-linear-gradient(135deg,rgba(255,255,255,.015) 0 2px,transparent 2px 6px)}
+.plate .dot{width:6px;height:6px;border-radius:50%;display:inline-block;margin-right:6px;background:var(--text-dim)}
+.plate-right{display:flex;align-items:center;gap:14px}
+.logout-link{background:none;border:0;color:var(--text-dim);font-family:var(--mono);font-size:10px;letter-spacing:.06em;cursor:pointer;text-decoration:underline}
+.logout-link:hover{color:var(--text)}
+.shell{display:flex;border:1px solid var(--line);border-radius:0 0 3px 3px;background:var(--surface);min-height:420px}
+.nav{width:190px;flex-shrink:0;border-right:1px solid var(--line);padding:14px 0}
+.nav-label{font-family:var(--mono);font-size:9px;letter-spacing:.14em;text-transform:uppercase;color:#4a5058;padding:6px 18px 10px}
+button.nav-item{display:flex;width:100%;align-items:center;gap:10px;padding:11px 18px;font-size:13px;color:var(--text-dim);cursor:pointer;border:0;border-left:2px solid transparent;background:none;font:inherit;text-align:left;transition:background .15s ease,color .15s ease}
+button.nav-item:hover{background:var(--surface-2);color:var(--text)}
+button.nav-item.active{color:var(--copper);background:linear-gradient(90deg,rgba(201,124,76,.12),transparent);border-left:2px solid var(--copper);font-weight:600}
+.nav-item .ic{width:16px;text-align:center;font-size:13px;flex-shrink:0}
+.content{flex:1;min-width:0;padding:26px 26px 24px}
+.panel{display:none}
+.panel.active{display:block;animation:fade .18s ease}
+@keyframes fade{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:translateY(0)}}
+.hero{margin-bottom:20px}
+.hero h1{font-size:19px;font-weight:700;letter-spacing:-.01em;margin-bottom:6px}
+.hero p{font-size:13px;color:var(--text-dim);line-height:1.5}
+.ssid-tag{display:inline-flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--copper);border:1px solid var(--copper);border-radius:20px;padding:4px 12px;margin-top:10px}
+.section-label{font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--copper);margin:20px 0 10px;display:flex;align-items:center;gap:8px}
+.section-label::after{content:'';flex:1;height:1px;background:var(--line)}
+.section-label:first-of-type{margin-top:0}
+.field{margin-top:14px}
+.field:first-child{margin-top:0}
+.field label{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px}
+.field-optional{color:#4a5058;text-transform:none;letter-spacing:0;font-family:var(--sans)}
+.field-row{display:flex;gap:10px}
+.field-row .field{flex:1;margin-top:0}
+.input-wrap{display:flex;align-items:center;border:1px solid var(--line);border-radius:4px;background:var(--bg);padding:0 4px 0 14px;transition:border-color .15s ease}
+.input-wrap:focus-within{border-color:var(--copper)}
+.input-wrap.error{border-color:var(--danger)}
+.input-wrap input,.input-wrap select{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--mono);font-size:14px;padding:12px 0;appearance:none;width:100%}
+.input-wrap select{cursor:pointer}
+.input-wrap input:disabled{color:var(--text-dim)}
+.input-wrap input::placeholder{color:#4a5058}
+.toggle-vis{background:none;border:none;color:var(--text-dim);font-family:var(--mono);font-size:10px;letter-spacing:.06em;cursor:pointer;padding:8px 10px}
+.toggle-vis:hover{color:var(--text)}
+.error-msg{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--danger);margin-top:8px;min-height:14px}
+.info-grid{border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:11px 14px;border-bottom:1px solid var(--line);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-row .k{color:var(--text-dim)}
+.info-row .v{font-family:var(--mono);font-size:12px;color:var(--text);text-align:right}
+.signal-hero{display:flex;align-items:center;gap:16px;padding-bottom:20px;border-bottom:1px solid var(--line);margin-bottom:20px}
+.signal-rings{position:relative;width:56px;height:56px;flex-shrink:0;display:flex;align-items:center;justify-content:center}
+.signal-rings svg{width:56px;height:56px}
+.signal-rings .pct{position:absolute;font-family:var(--mono);font-size:11px;font-weight:600;color:var(--ok)}
+.signal-text h2{font-size:18px;font-weight:700;letter-spacing:-.01em;margin-bottom:4px}
+.signal-text .status{font-family:var(--mono);font-size:11px;color:var(--ok);display:flex;align-items:center;gap:5px}
+.switch-row{display:flex;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:4px;padding:12px 14px;cursor:pointer}
+.switch-row .s-label{font-size:13px;font-weight:500}
+.switch-row .s-sub{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:2px}
+.switch-checkbox{display:none}
+.switch-visual{position:relative;width:38px;height:22px;background:var(--line);border-radius:20px;flex-shrink:0;transition:background .15s ease}
+.switch-visual::after{content:'';position:absolute;top:2px;left:2px;width:18px;height:18px;background:#8b93a0;border-radius:50%;transition:left .15s ease,background .15s ease}
+.switch-checkbox:checked + .switch-visual{background:var(--copper)}
+.switch-checkbox:checked + .switch-visual::after{left:18px;background:#1a1206}
+.networks{list-style:none;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.net{display:flex;align-items:center;gap:12px;padding:13px 14px;border-bottom:1px solid var(--line);cursor:pointer;background:var(--surface);transition:background .15s ease}
+.net:last-child{border-bottom:none}
+.net:hover{background:var(--surface-2)}
+.net.selected{background:linear-gradient(90deg,rgba(201,124,76,.14),transparent);border-left:2px solid var(--copper);padding-left:12px}
+.bars{display:flex;align-items:flex-end;gap:2px;width:16px;height:14px;flex-shrink:0}
+.bars span{flex:1;background:var(--line);border-radius:1px}
+.bars span:nth-child(1){height:25%} .bars span:nth-child(2){height:50%}
+.bars span:nth-child(3){height:75%} .bars span:nth-child(4){height:100%}
+.bars.strong span{background:var(--copper)}
+.bars.medium span:nth-child(-n+3){background:var(--warn)}
+.bars.weak span:nth-child(-n+2){background:var(--text-dim)}
+.net-info{flex:1;min-width:0}
+.net-name{font-size:14px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.net-meta{font-family:var(--mono);font-size:10px;color:var(--text-dim);margin-top:2px}
+.lock{color:var(--text-dim);font-size:13px;flex-shrink:0}
+.empty-note{font-family:var(--mono);font-size:11px;color:var(--text-dim);padding:14px;text-align:center;border:1px dashed var(--line);border-radius:4px}
+.segmented{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.segmented button{flex:1;padding:10px 4px;background:var(--bg);border:none;border-right:1px solid var(--line);color:var(--text-dim);font-family:var(--mono);font-size:11px;cursor:pointer;transition:background .15s ease,color .15s ease}
+.segmented button:last-child{border-right:none}
+.segmented button.active{background:rgba(201,124,76,.14);color:var(--copper);font-weight:600}
+.cert-row{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin-top:10px}
+.cert-row:first-of-type{margin-top:0}
+.cert-icon{width:30px;height:30px;border-radius:4px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.cert-info2{flex:1;min-width:0}
+.cert-name{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cert-meta{font-family:var(--mono);font-size:10px;margin-top:2px}
+.cert-meta.ok{color:var(--ok)} .cert-meta.pending{color:var(--text-dim)}
+.cert-btn{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--copper);background:none;border:1px solid var(--copper);border-radius:20px;padding:6px 12px;cursor:pointer;flex-shrink:0}
+.cert-btn.upload{color:var(--text-dim);border-color:var(--line)}
+.cert-file-input{display:none}
+.fingerprint{margin-top:14px;border:1px solid var(--line);border-radius:4px;padding:12px 14px;background:var(--bg)}
+.fingerprint .fp-label{font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:6px}
+.fingerprint .fp-val{font-family:var(--mono);font-size:11px;color:var(--ok);word-break:break-all;line-height:1.6}
+.file-row{display:flex;align-items:center;gap:12px;border:1px solid var(--line);border-radius:4px;padding:12px 14px;margin-top:10px}
+.file-icon{width:30px;height:30px;border-radius:4px;background:var(--bg);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.file-info{flex:1;min-width:0}
+.file-info input[type=file]{color:var(--text-dim);font-family:var(--sans);font-size:12px;width:100%}
+.file-info input[type=file]::file-selector-button{background:none;border:1px solid var(--line);color:var(--text);border-radius:20px;padding:5px 10px;font:inherit;font-size:11px;cursor:pointer;margin-right:8px}
+.warning-note{display:flex;gap:8px;align-items:flex-start;border:1px solid var(--warn);border-radius:4px;padding:11px 12px;margin-top:16px;background:rgba(217,164,65,.08)}
+.warning-note .w-icon{color:var(--warn);font-size:13px;flex-shrink:0;margin-top:1px}
+.warning-note .w-text{font-size:12px;color:var(--text-dim);line-height:1.5}
+.lock-icon{width:44px;height:44px;border:1px solid var(--line);border-radius:50%;display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:18px;color:var(--copper)}
+.primary-btn{width:100%;padding:14px;border:none;border-radius:4px;background:var(--copper);color:#1a1206;font-family:var(--sans);font-size:14px;font-weight:600;cursor:pointer;margin-top:22px;transition:filter .15s ease,transform .1s ease}
+.primary-btn:hover{filter:brightness(1.08)}
+.primary-btn:active{transform:scale(.99)}
+.primary-btn:disabled{opacity:.5;cursor:not-allowed}
+.ghost-btn{background:none;border:1px solid var(--line);color:var(--text);padding:9px 16px;border-radius:6px;font:inherit;font-size:13px;cursor:pointer;margin-top:16px}
+.ghost-btn:hover{border-color:var(--text-dim)}
+.msg{margin-top:10px;font-size:12.5px;color:var(--text-dim)}
+.msg.ok{color:var(--ok)}
+.msg.err{color:var(--danger)}
+.footer-note{text-align:center;font-family:var(--mono);font-size:10px;color:#4a5058;margin-top:16px;letter-spacing:.04em}
+code{background:var(--bg);border:1px solid var(--line);border-radius:3px;padding:1px 5px;font-family:var(--mono);font-size:11px}
+p{margin:0 0 10px}
+[hidden]{display:none!important}
+@media (max-width:620px){
+  .shell{flex-direction:column}
+  .nav{width:100%;border-right:none;border-bottom:1px solid var(--line);display:flex;overflow-x:auto;padding:8px;gap:2px}
+  .nav-label{display:none}
+  button.nav-item{border-left:none;border-bottom:2px solid transparent;white-space:nowrap;padding:9px 12px;width:auto}
+  button.nav-item.active{border-left:none;border-bottom:2px solid var(--copper)}
+  .content{padding:20px 18px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<div class="device">
+  <div class="plate">
+    <span><span class="dot" id="plate-dot"></span><span id="plate-status">&ndash;</span></span>
+    <span class="plate-right">
+      <span id="plate-id">ESP32</span>
+      <button class="logout-link" id="logout-btn" type="button" hidden>Log out</button>
+    </span>
+  </div>
+
+  <div class="shell">
+
+    <section id="screen-login" class="panel" style="flex:1;padding:40px 26px">
+      <div class="lock-icon">&#128274;</div>
+      <div class="hero">
+        <h1>Admin Login</h1>
+        <p>Enter the administrator credentials to access device settings.</p>
+      </div>
+      <form id="login-form">
+        <div class="field">
+          <label for="login-id">Username</label>
+          <div class="input-wrap"><input type="text" id="login-id" autocomplete="username" placeholder="admin"></div>
+        </div>
+        <div class="field">
+          <label for="login-pw">Password</label>
+          <div class="input-wrap" id="login-pw-wrap"><input type="password" id="login-pw" autocomplete="current-password" placeholder="&bull;&bull;&bull;&bull;&bull;&bull;&bull;&bull;"><button class="toggle-vis" type="button" id="login-toggle">Show</button></div>
+          <div class="error-msg" id="login-error"></div>
+        </div>
+        <button class="primary-btn" type="submit">Log In</button>
+      </form>
+      <div class="footer-note">Factory default: admin / admin &mdash; you will be asked to set your own password at the first login.</div>
+    </section>
+
+    <section id="screen-changepw" class="panel" style="flex:1;padding:40px 26px">
+      <div class="lock-icon">&#128273;</div>
+      <div class="hero">
+        <h1>Set a New Password</h1>
+        <p>The factory default password must be changed before the device can be configured.</p>
+      </div>
+      <form id="forcepw-form">
+        <div class="field">
+          <label for="forcepw-new">New password</label>
+          <div class="input-wrap"><input type="password" id="forcepw-new" autocomplete="new-password"><button class="toggle-vis" type="button">Show</button></div>
+        </div>
+        <div class="field">
+          <label for="forcepw-confirm">Confirm new password</label>
+          <div class="input-wrap"><input type="password" id="forcepw-confirm" autocomplete="new-password"></div>
+          <div class="error-msg" id="forcepw-error"></div>
+        </div>
+        <button class="primary-btn" type="submit">Save Password</button>
+      </form>
+      <div class="footer-note">8&ndash;64 characters, letters and digits, no spaces; must differ from the username.</div>
+    </section>
+
+    <nav class="nav" id="main-nav" hidden>
+      <div class="nav-label">Status</div>
+      <button class="tab nav-item active" data-tab="status" type="button"><span class="ic">&#128225;</span>Status</button>
+      <div class="nav-label">Network</div>
+      <button class="tab nav-item" data-tab="wifi" type="button"><span class="ic">&#128246;</span>Wi-Fi</button>
+      <button class="tab nav-item" data-tab="enterprise" type="button"><span class="ic">&#127970;</span>Enterprise</button>
+      <button class="tab nav-item" data-tab="network" type="button"><span class="ic">&#9881;</span>IP Settings</button>
+      <div class="nav-label">Messaging</div>
+      <button class="tab nav-item" data-tab="mqtt" type="button"><span class="ic">&#128232;</span>MQTT Broker</button>
+      <div class="nav-label">Security</div>
+      <button class="tab nav-item" data-tab="tls" type="button"><span class="ic">&#128272;</span>TLS Certificates</button>
+      <div class="nav-label">System</div>
+      <button class="tab nav-item" data-tab="firmware" type="button"><span class="ic">&#11014;</span>Firmware</button>
+      <button class="tab nav-item" data-tab="about" type="button"><span class="ic">&#8505;</span>About</button>
+    </nav>
+
+    <div class="content" id="main-content" hidden>
+
+      <section id="tab-status" class="panel active">
+        <div class="signal-hero">
+          <div class="signal-rings">
+            <svg viewBox="0 0 56 56">
+              <circle cx="28" cy="28" r="24" fill="none" stroke="#2c323c" stroke-width="4"/>
+              <circle id="signal-arc" cx="28" cy="28" r="24" fill="none" stroke="#7fb88f" stroke-width="4"
+                stroke-dasharray="150.8" stroke-dashoffset="150.8" stroke-linecap="round" transform="rotate(-90 28 28)"/>
+            </svg>
+            <span class="pct" id="signal-pct">&ndash;</span>
+          </div>
+          <div class="signal-text">
+            <h2 id="f-ssid">&ndash;</h2>
+            <div class="status" id="f-status-line">&ndash;</div>
+          </div>
+        </div>
+        <div class="section-label">Network</div>
+        <div class="info-grid">
+          <div class="info-row"><span class="k">Mode</span><span class="v" id="f-mode">&ndash;</span></div>
+          <div class="info-row"><span class="k">Channel</span><span class="v" id="f-channel">&ndash;</span></div>
+          <div class="info-row"><span class="k">Signal Strength</span><span class="v" id="f-rssi">&ndash;</span></div>
+        </div>
+        <div class="section-label">IP Configuration</div>
+        <div class="info-grid">
+          <div class="info-row"><span class="k">IP Address</span><span class="v" id="f-ip">&ndash;</span></div>
+          <div class="info-row"><span class="k">Subnet Mask</span><span class="v" id="f-netmask">&ndash;</span></div>
+          <div class="info-row"><span class="k">Gateway</span><span class="v" id="f-gateway">&ndash;</span></div>
+          <div class="info-row"><span class="k">DNS</span><span class="v" id="f-dns">&ndash;</span></div>
+          <div class="info-row"><span class="k">Device MAC</span><span class="v" id="f-mac">&ndash;</span></div>
+        </div>
+        <button class="ghost-btn" type="button" id="status-refresh">Refresh</button>
+      </section>
+
+      <section id="tab-wifi" class="panel">
+        <div class="hero">
+          <h1>Connect to a Wi-Fi network</h1>
+          <p>Scan for nearby networks, or enter a network's password below.</p>
+        </div>
+        <div class="section-label">Nearby Networks <span id="wifi-scan-count"></span></div>
+        <div id="wifi-networks"><div class="empty-note">Press "Scan" to search for networks.</div></div>
+        <button class="ghost-btn" type="button" id="wifi-scan-btn">Scan</button>
+        <div class="field" style="margin-top:16px">
+          <label>SSID</label>
+          <div class="input-wrap"><input type="text" id="wifi-ssid" placeholder="Network name"></div>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="input-wrap"><input type="password" id="wifi-password" placeholder="Leave blank for an open network"><button class="toggle-vis" type="button" data-toggle-for="wifi-password">Show</button></div>
+        </div>
+        <button class="primary-btn" type="button" id="wifi-connect-btn">Connect</button>
+        <div class="msg" id="wifi-status"></div>
+      </section>
+
+      <section id="tab-enterprise" class="panel">
+        <div class="hero">
+          <h1>Enterprise network authentication</h1>
+          <p>Corporate or institutional networks require account-based authentication (802.1X).</p>
+        </div>
+        <div class="field">
+          <label>SSID</label>
+          <div class="input-wrap"><input type="text" id="ent-ssid" placeholder="Network name"></div>
+        </div>
+        <div class="section-label">EAP Method</div>
+        <div class="segmented" id="ent-method-group" data-value="peap">
+          <button type="button" class="active" data-value="peap">PEAP</button><button type="button" data-value="ttls">TTLS</button><button type="button" data-value="tls">TLS</button>
+        </div>
+        <div class="field">
+          <label>Identity</label>
+          <div class="input-wrap"><input type="text" id="ent-identity" placeholder="user@company.com"></div>
+        </div>
+        <div class="field">
+          <label>Anonymous Identity <span class="field-optional">&mdash; optional</span></label>
+          <div class="input-wrap"><input type="text" id="ent-anon-identity" placeholder="anonymous@company.com"></div>
+        </div>
+        <div class="field">
+          <label>Username</label>
+          <div class="input-wrap"><input type="text" id="ent-username" placeholder="Phase-2 username"></div>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <div class="input-wrap"><input type="password" id="ent-password"><button class="toggle-vis" type="button" data-toggle-for="ent-password">Show</button></div>
+        </div>
+        <div class="section-label">Certificates</div>
+        <div class="cert-row">
+          <div class="cert-info2"><div class="cert-name">CA certificate</div><div class="cert-meta pending" id="ent-ca-meta">No CA cert staged &mdash; connection will not verify the server</div></div>
+          <button class="cert-btn" type="button" data-nav-tab="tls">Manage</button>
+        </div>
+        <div class="cert-row">
+          <div class="cert-info2"><div class="cert-name">Client certificate</div><div class="cert-meta pending" id="ent-client-meta">No client certificate staged &mdash; required for the TLS method</div></div>
+          <button class="cert-btn" type="button" data-nav-tab="tls">Manage</button>
+        </div>
+        <p class="footer-note" style="text-align:left;margin-top:10px">PEAP and TTLS authenticate with the Identity/Username/Password fields above; TLS authenticates with the client certificate instead &mdash; upload it on the TLS Certificates screen first.</p>
+        <button class="primary-btn" type="button" id="ent-connect-btn">Authenticate &amp; Connect</button>
+        <div class="msg" id="ent-status"></div>
+      </section>
+
+      <section id="tab-network" class="panel">
+        <div class="hero">
+          <h1>IP Settings</h1>
+          <p>Static addresses apply to the Wi-Fi station interface.</p>
+        </div>
+        <form id="net-form">
+          <label class="switch-row">
+            <div>
+              <div class="s-label">Obtain an IP address automatically</div>
+              <div class="s-sub">DHCP client</div>
+            </div>
+            <input type="checkbox" id="net-dhcp" class="switch-checkbox">
+            <span class="switch-visual"></span>
+          </label>
+          <div class="field">
+            <label for="net-ip">IP Address</label>
+            <div class="input-wrap"><input type="text" id="net-ip" pattern="^(\d{1,3}\.){3}\d{1,3}$" placeholder="192.168.1.100"></div>
+          </div>
+          <div class="field">
+            <label for="net-netmask">Subnet Mask</label>
+            <div class="input-wrap"><input type="text" id="net-netmask" pattern="^(\d{1,3}\.){3}\d{1,3}$" placeholder="255.255.255.0"></div>
+          </div>
+          <div class="field">
+            <label for="net-gateway">Gateway</label>
+            <div class="input-wrap"><input type="text" id="net-gateway" pattern="^(\d{1,3}\.){3}\d{1,3}$" placeholder="192.168.1.1"></div>
+          </div>
+          <div class="field">
+            <label for="net-dns">DNS</label>
+            <div class="input-wrap"><input type="text" id="net-dns" disabled></div>
+          </div>
+          <button class="primary-btn" type="submit">Save</button>
+          <div class="msg" id="net-status"></div>
+        </form>
+      </section>
+
+      <section id="tab-mqtt" class="panel">
+        <div class="hero">
+          <h1>MQTT Broker Settings</h1>
+          <p>Configure the broker this device will connect to and publish telemetry to.</p>
+        </div>
+        <div class="section-label">Broker</div>
+        <div class="field"><label>Host</label><div class="input-wrap"><input type="text" id="mqtt-host" placeholder="mqtt.example.com"></div></div>
+        <div class="field-row" style="margin-top:14px">
+          <div class="field"><label>Port</label><div class="input-wrap"><input type="text" id="mqtt-port" value="1883"></div></div>
+          <div class="field"><label>Client ID</label><div class="input-wrap"><input type="text" id="mqtt-client-id" placeholder="esp32-a19c03"></div></div>
+        </div>
+        <div class="field"><label>Username <span class="field-optional">&mdash; optional</span></label><div class="input-wrap"><input type="text" id="mqtt-user" placeholder="mqtt_user"></div></div>
+        <div class="field"><label>Password <span class="field-optional">&mdash; optional</span></label><div class="input-wrap"><input type="password" id="mqtt-password"><button class="toggle-vis" type="button" data-toggle-for="mqtt-password">Show</button></div></div>
+        <div class="section-label">Transport</div>
+        <label class="switch-row">
+          <div>
+            <div class="s-label">Use TLS/SSL</div>
+            <div class="s-sub" id="mqtt-tls-sub">Port 1883 (plain)</div>
+          </div>
+          <input type="checkbox" id="mqtt-tls" class="switch-checkbox">
+          <span class="switch-visual"></span>
+        </label>
+        <p class="footer-note" style="text-align:left;margin-top:10px">Certificates for this connection are managed on the TLS Certificates screen (uses <code>ca.pem</code> / <code>client.crt</code> / <code>client.key</code> if uploaded).</p>
+        <button class="primary-btn" type="button" id="mqtt-save-btn">Save &amp; Test Connection</button>
+        <div class="msg" id="mqtt-status"></div>
+        <div class="section-label" style="margin-top:20px">Current State</div>
+        <div class="info-grid">
+          <div class="info-row"><span class="k">Configured</span><span class="v" id="mqtt-st-configured">&ndash;</span></div>
+          <div class="info-row"><span class="k">Connected</span><span class="v" id="mqtt-st-connected">&ndash;</span></div>
+        </div>
+      </section>
+
+      <section id="tab-tls" class="panel">
+        <div class="hero">
+          <h1>TLS Certificates</h1>
+          <p>Manage certificate files shared by the MQTT broker (mutual TLS) and Wi-Fi Enterprise (802.1X) connections.</p>
+        </div>
+        <div class="section-label">Certificate Files</div>
+        <div id="cert-list"></div>
+        <p class="footer-note" style="text-align:left;margin-top:14px">Uploading here is equivalent to <code>AT*M2M*NET_HTTPDOWNLOAD</code> followed by referencing the filename from <code>MQTT_CONF</code>'s cert_name or <code>AT*M2M*WF_EAPCERT</code>.</p>
+      </section>
+
+      <section id="tab-firmware" class="panel">
+        <div class="hero">
+          <h1>Firmware Update</h1>
+          <p>Keep the device firmware current for the latest features and security fixes.</p>
+        </div>
+        <div class="section-label">Current Firmware</div>
+        <div class="info-grid">
+          <div class="info-row"><span class="k">Version</span><span class="v" id="fw-current">&ndash;</span></div>
+          <div class="info-row"><span class="k">Model</span><span class="v">ESP32</span></div>
+        </div>
+        <div class="section-label">Upload</div>
+        <form id="ota-form">
+          <div class="file-row">
+            <div class="file-icon">&#128230;</div>
+            <div class="file-info"><input type="file" id="ota-file"></div>
+          </div>
+          <div class="field">
+            <label for="ota-version">Version</label>
+            <div class="input-wrap"><input type="text" id="ota-version" placeholder="01.01"></div>
+          </div>
+          <div class="warning-note" id="ota-https-note" hidden>
+            <span class="w-icon">&#128274;</span>
+            <span class="w-text">Firmware upload is only accepted over HTTPS. Open this page with https:// to update.</span>
+          </div>
+          <div class="warning-note">
+            <span class="w-icon">&#9888;</span>
+            <span class="w-text">Do not power off or disconnect the device during an update. Interrupting the process can leave the firmware corrupted.</span>
+          </div>
+          <button class="primary-btn" type="submit">Upload</button>
+          <div class="msg" id="ota-status"></div>
+        </form>
+      </section>
+
+      <section id="tab-about" class="panel">
+        <div class="hero">
+          <h1>About</h1>
+          <p>M2M services module &mdash; a Wi-Fi to serial bridge for M2M/IoT connectivity, controlled over UART via AT commands and configured here on the web UI.</p>
+        </div>
+        <div class="info-grid">
+          <div class="info-row"><span class="k">Model</span><span class="v">ESP32</span></div>
+          <div class="info-row"><span class="k">Firmware</span><span class="v" id="f-fw-about">&ndash;</span></div>
+        </div>
+        <div class="section-label">Change Login</div>
+        <form id="chpw-form">
+          <div class="field">
+            <label for="chpw-id">Username</label>
+            <div class="input-wrap"><input type="text" id="chpw-id" autocomplete="username"></div>
+          </div>
+          <div class="field">
+            <label for="chpw-current">Current password</label>
+            <div class="input-wrap"><input type="password" id="chpw-current" autocomplete="current-password"></div>
+          </div>
+          <div class="field">
+            <label for="chpw-new">New password</label>
+            <div class="input-wrap"><input type="password" id="chpw-new" autocomplete="new-password"><button class="toggle-vis" type="button">Show</button></div>
+          </div>
+          <div class="field">
+            <label for="chpw-confirm">Confirm new password</label>
+            <div class="input-wrap"><input type="password" id="chpw-confirm" autocomplete="new-password"></div>
+          </div>
+          <button class="primary-btn" type="submit">Change Password</button>
+          <div class="msg" id="chpw-status"></div>
+        </form>
+        <p class="footer-note" style="text-align:left;margin-top:16px">8&ndash;64 characters, letters and digits, no spaces; must differ from the username. After 5 wrong passwords, login is locked for 1 minute (doubling on each further lockout, up to 1 hour).</p>
+      </section>
+
+    </div>
+  </div>
+  <div class="footer-note" id="fw-footer" style="margin-top:14px">&ndash;</div>
+</div>
+<script>
+(function(){
+"use strict";
+var $ = function(id){ return document.getElementById(id); };
+
+function setMsg(el, text, kind){
+  el.textContent = text;
+  el.className = "msg" + (kind ? " " + kind : "");
+}
+
+function api(path, opts){
+  return fetch(path, opts).then(function(r){
+    return r.json().catch(function(){ return {}; }).then(function(d){ return { ok: r.ok, status: r.status, d: d }; });
+  });
+}
+
+/* ---- tabs ---- */
+document.querySelectorAll(".tab").forEach(function(tab){
+  tab.addEventListener("click", function(){ activateTab(tab.dataset.tab); });
+});
+document.querySelectorAll("[data-nav-tab]").forEach(function(btn){
+  btn.addEventListener("click", function(){ activateTab(btn.dataset.navTab); });
+});
+function activateTab(name){
+  document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("active"); });
+  document.querySelectorAll(".content > .panel").forEach(function(p){ p.classList.remove("active"); });
+  var tabBtn = document.querySelector('.tab[data-tab="' + name + '"]');
+  if (tabBtn) tabBtn.classList.add("active");
+  $("tab-" + name).classList.add("active");
+  if (name === "mqtt") loadMqttStatus();
+  if (name === "tls") loadCerts();
+  if (name === "enterprise") loadEnterpriseCertStatus();
+}
+
+/* ---- show/hide password ---- */
+document.querySelectorAll(".toggle-vis").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    var input = btn.dataset.toggleFor ? $(btn.dataset.toggleFor) : btn.previousElementSibling;
+    var isPw = input.type === "password";
+    input.type = isPw ? "text" : "password";
+    btn.textContent = isPw ? "Hide" : "Show";
+  });
+});
+
+/* ---- login / session ---- */
+function showApp(show){
+  $("screen-login").classList.toggle("active", !show);
+  $("screen-changepw").classList.remove("active");
+  $("main-nav").hidden = !show;
+  $("main-content").hidden = !show;
+  $("logout-btn").hidden = !show;
+  $("ota-https-note").hidden = location.protocol === "https:";
+}
+
+/* Factory default password still in effect: only the change screen. */
+function showForceChange(){
+  $("screen-login").classList.remove("active");
+  $("screen-changepw").classList.add("active");
+  $("main-nav").hidden = true;
+  $("main-content").hidden = true;
+  $("logout-btn").hidden = false;
+  $("forcepw-new").focus();
+}
+
+var currentId = "";
+function enterApp(d){
+  if (d.id) { currentId = d.id; $("chpw-id").value = d.id; }
+  if (d.must_change){ showForceChange(); return; }
+  showApp(true);
+  loadStatus();
+}
+
+function checkSession(){
+  return fetch("/api/session").then(function(r){ return r.json(); }).then(function(d){
+    if (d.authenticated) enterApp(d); else showApp(false);
+    return !!d.authenticated;
+  }).catch(function(){ showApp(false); return false; });
+}
+
+var lastLoginPw = "";
+function changePassword(current, id, pw, confirm){
+  if (pw !== confirm) return Promise.resolve({ ok: false, d: { error: "New passwords do not match" } });
+  var body = { current: current, password: pw };
+  if (id) body.id = id;
+  return api("/api/password", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  }).then(function(res){
+    if (res.status === 429) res.d.error = "Too many failed attempts. Try again in " + (res.d.retry_after || "a few") + " s.";
+    return res;
+  });
+}
+
+$("login-form").addEventListener("submit", function(ev){
+  ev.preventDefault();
+  var wrap = $("login-pw-wrap");
+  var err = $("login-error");
+  wrap.classList.remove("error");
+  err.textContent = "";
+  api("/api/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ id: $("login-id").value, password: $("login-pw").value })
+  }).then(function(res){
+    if (res.ok && res.d.ok){
+      lastLoginPw = $("login-pw").value;
+      $("login-pw").value = "";
+      currentId = $("login-id").value;
+      $("chpw-id").value = currentId;
+      if (res.d.must_change){ showForceChange(); return; }
+      lastLoginPw = "";
+      showApp(true);
+      loadStatus();
+    } else {
+      wrap.classList.add("error");
+      err.textContent = "⚠ " + (res.status === 429
+        ? "Too many failed attempts. Try again in " + (res.d.retry_after || "a few") + " s."
+        : (res.d.error || "Login failed"));
+    }
+  });
+});
+
+$("forcepw-form").addEventListener("submit", function(ev){
+  ev.preventDefault();
+  var err = $("forcepw-error");
+  err.textContent = "";
+  changePassword(lastLoginPw, "", $("forcepw-new").value, $("forcepw-confirm").value).then(function(res){
+    if (res.ok && res.d.ok){
+      lastLoginPw = "";
+      $("forcepw-new").value = $("forcepw-confirm").value = "";
+      showApp(true);
+      loadStatus();
+    } else {
+      err.textContent = "⚠ " + (res.d.error || "Could not change the password");
+    }
+  });
+});
+
+$("chpw-form").addEventListener("submit", function(ev){
+  ev.preventDefault();
+  var st = $("chpw-status");
+  var id = $("chpw-id").value.trim();
+  changePassword($("chpw-current").value, id !== currentId ? id : "", $("chpw-new").value, $("chpw-confirm").value)
+    .then(function(res){
+      if (res.ok && res.d.ok){
+        if (id) currentId = id;
+        $("chpw-current").value = $("chpw-new").value = $("chpw-confirm").value = "";
+        setMsg(st, "Password changed.", "ok");
+      } else {
+        setMsg(st, res.d.error || "Could not change the password", "err");
+      }
+    });
+});
+$("login-pw").addEventListener("input", function(){
+  $("login-pw-wrap").classList.remove("error");
+  $("login-error").textContent = "";
+});
+$("logout-btn").addEventListener("click", function(){
+  api("/api/logout", { method: "POST" }).then(function(){ showApp(false); });
+});
+
+/* ---- Status tab ---- */
+var ARC = 150.8;
+function loadStatus(){
+  fetch("/api/status").then(function(r){
+    if (r.status === 401){ showApp(false); return null; }
+    if (r.status === 403){ showForceChange(); return null; }
+    return r.json();
+  }).then(function(d){
+    if (!d) return;
+    var isStation = d.mode === "Station";
+
+    $("f-fw-about").textContent = d.fw;
+    $("fw-footer").textContent = "M2M services · firmware " + d.fw;
+    $("fw-current").textContent = d.fw;
+    $("plate-id").textContent = "ESP32 · " + d.mac;
+    $("f-mac").textContent = d.mac;
+    $("f-mode").textContent = d.mode;
+    $("f-ssid").textContent = d.ssid || (isStation ? "Not connected" : "SoftAP");
+    $("f-channel").textContent = d.channel;
+    $("f-rssi").textContent = isStation ? d.rssi + " dBm" : "–";
+
+    var connected = isStation && !!d.ssid;
+    var stateColor = connected ? "var(--ok)" : (isStation ? "var(--danger)" : "var(--copper)");
+    $("plate-dot").style.background = stateColor;
+    $("plate-dot").style.boxShadow = "0 0 6px " + stateColor;
+    $("plate-status").textContent = connected ? "CONNECTED" : (isStation ? "DISCONNECTED" : "AP MODE");
+    $("f-status-line").innerHTML = "● " + (connected ? "Connected to network" : (isStation ? "Not connected" : "SoftAP broadcasting"));
+    $("f-status-line").style.color = stateColor;
+
+    if (isStation && d.ssid){
+      var pct = Math.max(0, Math.min(100, 2 * (d.rssi + 100)));
+      $("signal-pct").textContent = pct + "%";
+      $("signal-arc").setAttribute("stroke-dashoffset", ARC - (ARC * pct / 100));
+      $("signal-arc").setAttribute("stroke", pct >= 40 ? "#7fb88f" : "#d97757");
+    } else {
+      $("signal-pct").textContent = "–";
+      $("signal-arc").setAttribute("stroke-dashoffset", ARC);
+    }
+
+    $("f-ip").textContent = d.ip;
+    $("f-netmask").textContent = d.netmask;
+    $("f-gateway").textContent = d.gateway;
+    $("f-dns").textContent = d.dns;
+
+    $("net-dhcp").checked = d.dhcp;
+    $("net-ip").value = d.ip;
+    $("net-netmask").value = d.netmask;
+    $("net-gateway").value = d.gateway;
+    $("net-dns").value = d.dns;
+    toggleStaticFields();
+  }).catch(function(){
+    $("plate-status").textContent = "OFFLINE";
+  });
+}
+
+function toggleStaticFields(){
+  var dhcpOn = $("net-dhcp").checked;
+  ["net-ip", "net-netmask", "net-gateway"].forEach(function(id){ $(id).disabled = dhcpOn; });
+}
+$("net-dhcp").addEventListener("change", toggleStaticFields);
+$("status-refresh").addEventListener("click", loadStatus);
+
+$("net-form").addEventListener("submit", function(ev){
+  ev.preventDefault();
+  var body = { dhcp: $("net-dhcp").checked };
+  if (!body.dhcp){
+    body.ip = $("net-ip").value;
+    body.netmask = $("net-netmask").value;
+    body.gateway = $("net-gateway").value;
+  }
+  var status = $("net-status");
+  setMsg(status, "Saving…");
+  api("/api/network", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body)
+  }).then(function(res){
+    setMsg(status, res.ok ? "Saved." : "Failed: " + (res.d.error || "request rejected"), res.ok ? "ok" : "err");
+    if (res.ok) loadStatus();
+  });
+});
+
+/* ---- Wi-Fi scan/connect tab ---- */
+var selectedSsid = "";
+function barsClass(rssi){
+  if (rssi >= -60) return "strong";
+  if (rssi >= -75) return "medium";
+  return "weak";
+}
+function renderNetworks(list){
+  var container = $("wifi-networks");
+  if (!list.length){
+    container.innerHTML = '<div class="empty-note">No networks found.</div>';
+    return;
+  }
+  var ul = document.createElement("ul");
+  ul.className = "networks";
+  list.forEach(function(net){
+    var li = document.createElement("li");
+    li.className = "net";
+    li.dataset.ssid = net.ssid;
+    li.innerHTML =
+      '<div class="bars ' + barsClass(net.rssi) + '"><span></span><span></span><span></span><span></span></div>' +
+      '<div class="net-info"><div class="net-name"></div><div class="net-meta"></div></div>' +
+      '<div class="lock">' + (net.secure ? "\u{1F512}" : "") + '</div>';
+    li.querySelector(".net-name").textContent = net.ssid || "(hidden)";
+    li.querySelector(".net-meta").textContent = "CH " + net.channel + " · " + net.rssi + " dBm";
+    li.addEventListener("click", function(){
+      document.querySelectorAll("#wifi-networks .net").forEach(function(n){ n.classList.remove("selected"); });
+      li.classList.add("selected");
+      $("wifi-ssid").value = net.ssid;
+    });
+    ul.appendChild(li);
+  });
+  container.innerHTML = "";
+  container.appendChild(ul);
+}
+$("wifi-scan-btn").addEventListener("click", function(){
+  var btn = $("wifi-scan-btn");
+  btn.disabled = true;
+  btn.textContent = "Scanning…";
+  $("wifi-networks").innerHTML = '<div class="empty-note">Scanning…</div>';
+  api("/api/wifi/scan").then(function(res){
+    btn.disabled = false;
+    btn.textContent = "Scan";
+    if (!res.ok){
+      $("wifi-networks").innerHTML = '<div class="empty-note">Scan failed.</div>';
+      return;
+    }
+    var list = res.d.networks || [];
+    $("wifi-scan-count").textContent = "· " + list.length;
+    renderNetworks(list);
+  });
+});
+$("wifi-connect-btn").addEventListener("click", function(){
+  var status = $("wifi-status");
+  var ssid = $("wifi-ssid").value;
+  if (!ssid){
+    setMsg(status, "Enter or select an SSID first.", "err");
+    return;
+  }
+  setMsg(status, "Connecting…");
+  api("/api/wifi/connect", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ ssid: ssid, password: $("wifi-password").value })
+  }).then(function(res){
+    setMsg(status, res.ok ? "Connecting — check the Status tab shortly." : "Failed: " + (res.d.error || "request rejected"), res.ok ? "ok" : "err");
+    if (res.ok) setTimeout(loadStatus, 3000);
+  });
+});
+
+/* ---- Enterprise tab ---- */
+var entMethodGroup = $("ent-method-group");
+entMethodGroup.querySelectorAll("button").forEach(function(btn){
+  btn.addEventListener("click", function(){
+    entMethodGroup.querySelectorAll("button").forEach(function(b){ b.classList.remove("active"); });
+    btn.classList.add("active");
+    entMethodGroup.dataset.value = btn.dataset.value;
+  });
+});
+function loadEnterpriseCertStatus(){
+  api("/api/certs").then(function(res){
+    if (!res.ok) return;
+    var files = res.d.files || [];
+    var byName = {};
+    files.forEach(function(f){ byName[f.name] = f; });
+    var ca = byName["ca.pem"];
+    var caMeta = $("ent-ca-meta");
+    if (ca && ca.exists){
+      caMeta.textContent = "● ca.pem staged — the server certificate will be verified";
+      caMeta.className = "cert-meta ok";
+    } else {
+      caMeta.textContent = "No CA cert staged — connection will not verify the server";
+      caMeta.className = "cert-meta pending";
+    }
+    var crt = byName["client.crt"], key = byName["client.key"];
+    var clientMeta = $("ent-client-meta");
+    if (crt && crt.exists && key && key.exists){
+      clientMeta.textContent = "● client.crt + client.key staged — the TLS method is available";
+      clientMeta.className = "cert-meta ok";
+    } else {
+      clientMeta.textContent = "No client certificate staged — required for the TLS method";
+      clientMeta.className = "cert-meta pending";
+    }
+  });
+}
+$("ent-connect-btn").addEventListener("click", function(){
+  var status = $("ent-status");
+  var ssid = $("ent-ssid").value;
+  var username = $("ent-username").value;
+  var isTls = entMethodGroup.dataset.value === "tls";
+  if (!ssid || (!isTls && !username)){
+    setMsg(status, isTls ? "SSID is required." : "SSID and Username are required.", "err");
+    return;
+  }
+  setMsg(status, "Authenticating…");
+  api("/api/wifi/enterprise", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      ssid: ssid,
+      method: entMethodGroup.dataset.value,
+      identity: $("ent-identity").value,
+      anonymous_identity: $("ent-anon-identity").value,
+      username: username,
+      password: $("ent-password").value
+    })
+  }).then(function(res){
+    setMsg(status, res.ok ? "Connecting — check the Status tab shortly." : "Failed: " + (res.d.error || "request rejected"), res.ok ? "ok" : "err");
+    if (res.ok) setTimeout(loadStatus, 3000);
+  });
+});
+
+/* ---- MQTT tab ---- */
+$("mqtt-tls").addEventListener("change", function(){
+  var on = $("mqtt-tls").checked;
+  $("mqtt-tls-sub").textContent = on ? "Port 8883 (mqtts)" : "Port 1883 (plain)";
+  if ($("mqtt-port").value === "1883" || $("mqtt-port").value === "8883"){
+    $("mqtt-port").value = on ? "8883" : "1883";
+  }
+});
+function loadMqttStatus(){
+  api("/api/mqtt").then(function(res){
+    if (!res.ok) return;
+    var d = res.d;
+    $("mqtt-st-configured").textContent = d.configured ? "Yes" : "No";
+    $("mqtt-st-connected").textContent = d.connected ? "Yes" : "No";
+    $("mqtt-st-connected").style.color = d.connected ? "var(--ok)" : "var(--text-dim)";
+    if (d.configured){
+      $("mqtt-host").value = d.host;
+      $("mqtt-port").value = d.port;
+      $("mqtt-client-id").value = d.client_id;
+      $("mqtt-user").value = d.user;
+      $("mqtt-tls").checked = (d.scheme === 1 || d.scheme === 3);
+      $("mqtt-tls-sub").textContent = $("mqtt-tls").checked ? "Port " + d.port + " (mqtts)" : "Port " + d.port + " (plain)";
+    }
+  });
+}
+$("mqtt-save-btn").addEventListener("click", function(){
+  var status = $("mqtt-status");
+  var host = $("mqtt-host").value;
+  var clientId = $("mqtt-client-id").value;
+  if (!host || !clientId){
+    setMsg(status, "Host and Client ID are required.", "err");
+    return;
+  }
+  var tls = $("mqtt-tls").checked;
+  setMsg(status, "Saving…");
+  api("/api/mqtt", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      scheme: tls ? 1 : 0,
+      host: host,
+      port: parseInt($("mqtt-port").value, 10) || (tls ? 8883 : 1883),
+      client_id: clientId,
+      user: $("mqtt-user").value,
+      password: $("mqtt-password").value,
+      cert_name: tls ? "ca.pem" : ""
+    })
+  }).then(function(res){
+    setMsg(status, res.ok ? "Saved — connecting…" : "Failed: " + (res.d.error || "request rejected"), res.ok ? "ok" : "err");
+    if (res.ok) setTimeout(loadMqttStatus, 2000);
+  });
+});
+
+/* ---- TLS certificates tab ---- */
+var CERT_ICONS = { "ca.pem": "\u{1F4C4}", "client.crt": "\u{1F4C4}", "client.key": "\u{1F511}" };
+function loadCerts(){
+  api("/api/certs").then(function(res){
+    if (!res.ok) return;
+    var container = $("cert-list");
+    container.innerHTML = "";
+    (res.d.files || []).forEach(function(file){
+      var row = document.createElement("div");
+      row.className = "cert-row";
+      row.innerHTML =
+        '<div class="cert-icon"></div>' +
+        '<div class="cert-info2"><div class="cert-name"></div><div class="cert-meta"></div></div>' +
+        '<button class="cert-btn upload" type="button">Upload</button>' +
+        '<input type="file" class="cert-file-input">';
+      row.querySelector(".cert-icon").textContent = CERT_ICONS[file.name] || "\u{1F4C4}";
+      row.querySelector(".cert-name").textContent = file.name;
+      var meta = row.querySelector(".cert-meta");
+      if (file.exists){
+        meta.textContent = "● Uploaded";
+        meta.className = "cert-meta ok";
+      } else {
+        meta.textContent = "No file uploaded";
+        meta.className = "cert-meta pending";
+      }
+      var fileInput = row.querySelector(".cert-file-input");
+      var btn = row.querySelector(".cert-btn");
+      btn.addEventListener("click", function(){ fileInput.click(); });
+      fileInput.addEventListener("change", function(){
+        var f = fileInput.files[0];
+        if (!f) return;
+        btn.textContent = "Uploading…";
+        btn.disabled = true;
+        fetch("/api/certs/upload?name=" + encodeURIComponent(file.name), { method: "POST", body: f })
+          .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+          .then(function(res2){
+            btn.disabled = false;
+            btn.textContent = "Upload";
+            if (res2.ok) loadCerts();
+          })
+          .catch(function(){ btn.disabled = false; btn.textContent = "Upload"; });
+      });
+      container.appendChild(row);
+      if (file.name === "ca.pem" && file.fingerprint){
+        var fp = document.createElement("div");
+        fp.className = "fingerprint";
+        fp.innerHTML = '<div class="fp-label">CA Certificate SHA-256 Fingerprint</div><div class="fp-val"></div>';
+        fp.querySelector(".fp-val").textContent = file.fingerprint;
+        container.appendChild(fp);
+      }
+    });
+  });
+}
+
+/* ---- Firmware tab ---- */
+$("ota-form").addEventListener("submit", function(ev){
+  ev.preventDefault();
+  var file = $("ota-file").files[0];
+  var version = $("ota-version").value;
+  var status = $("ota-status");
+  if (!file || !version){
+    setMsg(status, "Choose a file and enter its version (e.g. 01.01).", "err");
+    return;
+  }
+  setMsg(status, "Uploading…");
+  fetch("/ota?version=" + encodeURIComponent(version), { method: "POST", body: file })
+    .then(function(r){ return r.text().then(function(t){ return { ok: r.ok, t: t }; }); })
+    .then(function(res){ setMsg(status, res.t, res.ok ? "ok" : "err"); })
+    .catch(function(){ setMsg(status, "Upload failed.", "err"); });
+});
+
+checkSession();
+})();
+</script>
+</body>
+</html>

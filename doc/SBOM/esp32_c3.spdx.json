@@ -1,0 +1,2899 @@
+{
+  "spdxVersion": "SPDX-2.2",
+  "dataLicense": "CC0-1.0",
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "esp32_c3",
+  "documentNamespace": "http://spdx.org/spdxdocs/esp32-c3-8b86eed4-44d1-409f-9fa4-6a27f2b21f86",
+  "creationInfo": {
+    "creators": [
+      "Tool: esp-idf-sbom-1.4.0",
+      "Organization: Espressif Systems (Shanghai) CO LTD"
+    ],
+    "created": "2026-10-04T13:41:48Z",
+    "comment": "ESP-IDF SBOM document in SPDX format"
+  },
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-PROJECT-esp32-c3",
+      "name": "project-esp32_c3",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "01.00"
+    },
+    {
+      "SPDXID": "SPDXRef-FRAMEWORK-esp-idf",
+      "name": "esp-idf",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "NOASSERTION",
+      "summary": "Espressif IoT Development Framework -- the official development framework for Espressif Systems' chips.",
+      "versionInfo": "5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:espressif:esp-idf:5.5.4:*:*:*:*:*:*:*"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:h:espressif:esp32:-:*:*:*:*:*:*:*"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:o:espressif:esp32_firmware:5.5.4:*:*:*:*:*:*:*"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:o:espressif:esp32_firmware:-:*:*:*:*:*:*:*"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d"
+        }
+      ],
+      "comment": "# The cve-exclude-list list contains CVEs, which were already evaluated and the package is not vulnerable.\ncve-exclude-list:\n-   cve: CVE-2025-27840\n    reason: A security issue was reported concerning undocumented HCI commands in\n        ESP32 Bluetooth controller. Espressif had earlier clarified that these vendor\n        HCI commands are primarily used for debugging purposes and pose no real, known\n        security threat. Technical details were shared in this https://developer.espressif.com/blog/2025/03/esp32-bluetooth-clearing-the-air/\n"
+    },
+    {
+      "SPDXID": "SPDXRef-TOOLCHAIN-riscv32-esp-elf",
+      "name": "toolchain-riscv32-esp-elf",
+      "downloadLocation": "https://github.com/espressif/crosstool-NG/releases/download/esp-14.2.0_20260121/riscv32-esp-elf-14.2.0_20260121-x86_64-w64-mingw32.zip",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "summary": "Toolchain for 32-bit RISC-V based on GCC",
+      "versionInfo": "esp-14.2.0_20260121",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/crosstool-NG"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/crosstool-NG@esp-14.2.0_20260121"
+        }
+      ],
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "c2734714e59f684b74d1cb278f75b4ae9ec546aa1e55d73786ef039410e4a8f7"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-app-update",
+      "name": "component-app_update",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/app_update"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/app_update"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-at-modem",
+      "name": "component-at_modem",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-bootloader-support",
+      "name": "component-bootloader_support",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/bootloader_support"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/bootloader_support"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-bt",
+      "name": "component-bt",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/bt"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/bt"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-bt-controller-lib-esp32",
+      "name": "submodule-bt-controller/lib_esp32",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp32-bt-lib.git@a348e3fbc75411acd88357af9e1d6a76621c449e"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp32-bt-lib@a348e3fbc75411acd88357af9e1d6a76621c449e"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-bt-controller-lib-esp32c2-esp32c2-bt-lib",
+      "name": "submodule-bt-controller/lib_esp32c2/esp32c2-bt-lib",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp32c2-bt-lib.git@1b0f5aac0fcf91ea042c781e6da10a528ca0da03"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp32c2-bt-lib@1b0f5aac0fcf91ea042c781e6da10a528ca0da03"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-bt-controller-lib-esp32c3-family",
+      "name": "submodule-bt-controller/lib_esp32c3_family",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp32c3-bt-lib.git@ebd6043a8e3c3bbde45ee483895303b9c1229ab5"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp32c3-bt-lib@ebd6043a8e3c3bbde45ee483895303b9c1229ab5"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-bt-controller-lib-esp32c5-esp32c5-bt-lib",
+      "name": "submodule-bt-controller/lib_esp32c5/esp32c5-bt-lib",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp32c5-bt-lib.git@1a570a59b6d694b8829c82555f445d88bf26f295"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp32c5-bt-lib@1a570a59b6d694b8829c82555f445d88bf26f295"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-bt-controller-lib-esp32c6-esp32c6-bt-lib",
+      "name": "submodule-bt-controller/lib_esp32c6/esp32c6-bt-lib",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp32c6-bt-lib.git@9d05fc931ae771de52de7e4b4c7090f5b3ec0ec4"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp32c6-bt-lib@9d05fc931ae771de52de7e4b4c7090f5b3ec0ec4"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-bt-controller-lib-esp32h2-esp32h2-bt-lib",
+      "name": "submodule-bt-controller/lib_esp32h2/esp32h2-bt-lib",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp32h2-bt-lib.git@126dbfeec7e7291458ce6ff8f9297e46f8946733"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp32h2-bt-lib@126dbfeec7e7291458ce6ff8f9297e46f8946733"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-bt-esp-ble-mesh-lib-lib",
+      "name": "submodule-bt-esp_ble_mesh/lib/lib",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-ble-mesh-lib.git@e44762384ed104a0ebc78f134eeba5f3ab648ddc"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-ble-mesh-lib@e44762384ed104a0ebc78f134eeba5f3ab648ddc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-bt-host-nimble-nimble",
+      "name": "Apache Mynewt Nimble",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "summary": "An open-source Bluetooth 5.1 stack with additional features and patches from Espressif.",
+      "versionInfo": "1.6.0",
+      "originator": "Organization: The Apache Software Foundation",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-nimble.git@5c1a43ca3d205c3d5183e57dedce335fb6a81155"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-nimble@5c1a43ca3d205c3d5183e57dedce335fb6a81155"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-cxx",
+      "name": "component-cxx",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/cxx"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/cxx"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-efuse",
+      "name": "component-efuse",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/efuse"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/efuse"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-tls",
+      "name": "component-esp-tls",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp-tls"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp-tls"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-app-format",
+      "name": "component-esp_app_format",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_app_format"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_app_format"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-coex",
+      "name": "component-esp_coex",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_coex"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_coex"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-esp-coex-lib",
+      "name": "submodule-esp_coex-lib",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-coex-lib.git@ee5cd79583c02f23e43e62931ffb55f5a4992d0f"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-coex-lib@ee5cd79583c02f23e43e62931ffb55f5a4992d0f"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-common",
+      "name": "component-esp_common",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_common"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_common"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-driver-gpio",
+      "name": "component-esp_driver_gpio",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_driver_gpio"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_driver_gpio"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-driver-uart",
+      "name": "component-esp_driver_uart",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_driver_uart"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_driver_uart"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-driver-usb-serial-jtag",
+      "name": "component-esp_driver_usb_serial_jtag",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_driver_usb_serial_jtag"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_driver_usb_serial_jtag"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-event",
+      "name": "component-esp_event",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_event"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_event"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-http-client",
+      "name": "component-esp_http_client",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_http_client"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_http_client"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-http-server",
+      "name": "component-esp_http_server",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_http_server"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_http_server"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-https-ota",
+      "name": "component-esp_https_ota",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_https_ota"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_https_ota"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-https-server",
+      "name": "component-esp_https_server",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_https_server"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_https_server"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-hw-support",
+      "name": "component-esp_hw_support",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_hw_support"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_hw_support"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-mm",
+      "name": "component-esp_mm",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_mm"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_mm"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-netif",
+      "name": "component-esp_netif",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_netif"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_netif"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-partition",
+      "name": "component-esp_partition",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_partition"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_partition"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-phy",
+      "name": "component-esp_phy",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_phy"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_phy"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-esp-phy-lib",
+      "name": "submodule-esp_phy-lib",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-phy-lib.git@3d57415af6e4c92eff2c4c3463e20a51d7340aba"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-phy-lib@3d57415af6e4c92eff2c4c3463e20a51d7340aba"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-ringbuf",
+      "name": "component-esp_ringbuf",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_ringbuf"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_ringbuf"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-security",
+      "name": "component-esp_security",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_security"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_security"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-system",
+      "name": "component-esp_system",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_system"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_system"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-timer",
+      "name": "component-esp_timer",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_timer"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_timer"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-vfs-console",
+      "name": "component-esp_vfs_console",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_vfs_console"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_vfs_console"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-esp-wifi",
+      "name": "component-esp_wifi",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_wifi"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/esp_wifi"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-esp-wifi-lib",
+      "name": "submodule-esp_wifi-lib",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp32-wifi-lib.git@b87cce81803b85c3639fb14bac6c24cff6d0fbad"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp32-wifi-lib@b87cce81803b85c3639fb14bac6c24cff6d0fbad"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-freertos",
+      "name": "component-freertos",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/freertos"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/freertos"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBPACKAGE-freertos-FreeRTOS-Kernel",
+      "name": "freertos",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "summary": "An open-source, real-time operating system (RTOS) with additional features and patches from Espressif.",
+      "versionInfo": "10.5.1",
+      "originator": "Organization: Amazon Web Services",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/freertos/FreeRTOS-Kernel"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:o:amazon:freertos:10.5.1:*:*:*:*:*:*:*"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/freertos/FreeRTOS-Kernel"
+        }
+      ],
+      "comment": "# The cve-exclude-list list contains CVEs, which were already evaluated and the package is not vulnerable.\ncve-exclude-list:\n-   cve: CVE-2026-77234\n    reason: A timer command submitted by an unprivileged task is executed by the timer\n        service task as a caller-supplied function call. Affects only MPU-enabled\n        ports (GHSA-w3vr-pr75-5hc6). ESP-IDF ships the xtensa, riscv and linux ports\n        only, none of which set portUSING_MPU_WRAPPERS, so the MPU wrappers and the\n        privilege boundary they enforce are not built. Same reasoning as CVE-2024-28115,\n        already excluded in the FreeRTOS-Kernel manifest.\n-   cve: CVE-2026-77237\n    reason: Missing queue-set type validation in xQueueAddToSet() leading to an out-of-bounds\n        read in privileged kernel context. Affects only MPU-enabled ports with configUSE_QUEUE_SETS=1\n        (GHSA-9wvc-hqvx-5wf5). ESP-IDF ships the xtensa, riscv and linux ports only,\n        none of which set portUSING_MPU_WRAPPERS, so there is no privileged/unprivileged\n        split for the over-read to cross.\n-   cve: CVE-2026-77235\n    reason: Missing privilege verification in the secure context cleanup SVC handler,\n        letting a Non-Secure task free another task's secure context (GHSA-55pf-q87x-c58c).\n        Affects ARMv8-M ports with TrustZone and MPU only. ESP-IDF ships the xtensa,\n        riscv and linux ports only and carries no secure_context sources, so the affected\n        code is not present.\n-   cve: CVE-2026-77236\n    reason: Missing minimum size validation in secure context allocation, writing\n        the stack-overflow sentinel outside the allocated Secure-world buffer (GHSA-vq2f-9qj3-jj2m).\n        Affects ARMv8-M ports with TrustZone only. ESP-IDF ships the xtensa, riscv\n        and linux ports only and carries no secure_context sources, so the affected\n        code is not present.\n-   cve: CVE-2024-28115\n    reason: Affects only ARMv7-M MPU ports, and ARMv8-M ports with Memory Protected\n        Unit (MPU) support enabled\n"
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-hal",
+      "name": "component-hal",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/hal"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/hal"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-heap",
+      "name": "component-heap",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/heap"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/heap"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-heap-tlsf",
+      "name": "submodule-heap-tlsf",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/tlsf.git@2867f6883a12920b1969ff9624c0ab0e4185c2ce"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/tlsf@2867f6883a12920b1969ff9624c0ab0e4185c2ce"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-http-parser",
+      "name": "HTTP Parser",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "summary": "HTTP request/response parser for c.",
+      "versionInfo": "2.7.0",
+      "originator": "Organization: NGINX, Joyent, Inc. and other Node contributors",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/http_parser"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/http_parser"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-json",
+      "name": "component-json",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/json"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/json"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-json-cJSON",
+      "name": "cjson",
+      "downloadLocation": "https://github.com/DaveGamble/cJSON",
+      "filesAnalyzed": false,
+      "supplier": "Person: Dave Gamble",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "summary": "Ultralightweight JSON parser in ANSI C",
+      "versionInfo": "1.7.19",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/DaveGamble/cJSON.git@c859b25da02955fef659d658b8f324b5cde87be3"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:cjson_project:cjson:1.7.19:*:*:*:*:*:*:*"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:davegamble:cjson:1.7.19:*:*:*:*:*:*:*"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/DaveGamble/cJSON@c859b25da02955fef659d658b8f324b5cde87be3"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-log",
+      "name": "component-log",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/log"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/log"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-lwip",
+      "name": "component-lwip",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/lwip"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/lwip"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-lwip-lwip",
+      "name": "lwip",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "summary": "A Lightweight TCP/IP stack with additional features and patches from Espressif.",
+      "versionInfo": "2.2.0",
+      "originator": "Organization: non-GNU software and documentation, lwIP Project <lwip-members@nongnu.org>",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-lwip.git@fd432e4ee2cfb7f7f1c7eb7227e0173412e7b84e"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:lwip_project:lwip:2.2.0:*:*:*:*:*:*:*"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-lwip@fd432e4ee2cfb7f7f1c7eb7227e0173412e7b84e"
+        }
+      ],
+      "comment": "# The cve-exclude-list list contains CVEs, which were already evaluated and the package is not vulnerable.\ncve-exclude-list:\n-   cve: CVE-2020-22283\n    reason: 'ICMPv6 out-of-bounds read (savannah #58553) in icmp6_send_response_with_addrs_and_netif().\n        Fixed upstream by commits 489405839ae0 and 488d4ad2460c (lwIP 2.1.3/2.2.0),\n        further hardened by 2bf8fcd7c240; all present as ancestors in the vendored\n        esp-lwip fork. NVD''s CPE has no fixed-version boundary (\"git head\"), causing\n        the version match.'\n"
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-main",
+      "name": "component-main",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "01.00"
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-mbedtls",
+      "name": "component-mbedtls",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/mbedtls"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/mbedtls"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-mbedtls-mbedtls",
+      "name": "mbed_tls",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "summary": "An open source, portable, easy to use, readable and flexible SSL library with additional features and patches from Espressif.",
+      "versionInfo": "3.6.5",
+      "originator": "Organization: Trusted Firmware <mbed-tls-security@lists.trustedfirmware.org>",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/mbedtls.git@ffb280bb63c78bfec1e1ab55040671768c85c923"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:arm:mbed_tls:3.6.5:*:*:*:*:*:*:*"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:trustedfirmware:mbed_tls:3.6.5:*:*:*:*:*:*:*"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/mbedtls@ffb280bb63c78bfec1e1ab55040671768c85c923"
+        }
+      ],
+      "comment": "# The cve-exclude-list list contains CVEs, which were already evaluated and the package is not vulnerable.\ncve-exclude-list:\n-   cve: CVE-2025-54764\n    reason: Fixed in 3.6.5\n-   cve: CVE-2025-59438\n    reason: Fixed in 3.6.5\n-   cve: CVE-2025-52496\n    reason: Fixed in 3.6.4\n-   cve: CVE-2025-27810\n    reason: Fixed in 3.6.3\n# The cve-keywords list includes strings used to search through CVE descriptions.\ncve-keywords:\n- mbed tls\n- mbedtls\n"
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-mqtt",
+      "name": "component-mqtt",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/mqtt"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/mqtt"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-mqtt-esp-mqtt",
+      "name": "submodule-mqtt-esp-mqtt",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "summary": "esp-mqtt",
+      "versionInfo": "1.0.0",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-mqtt.git@6af4446a48ea7fa54948edc4e62277ed70abb6e1"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-mqtt@6af4446a48ea7fa54948edc4e62277ed70abb6e1"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-newlib",
+      "name": "esp_libc",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "summary": "An open-source C standard library implementation with additional features and patches from Espressif.",
+      "versionInfo": "v5.5.4",
+      "originator": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/newlib"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/newlib"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-VIRTPACKAGE-newlib-sbom-newlibc.yml",
+      "name": "newlib",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "summary": "Newlib is a small C standard library for embedded systems",
+      "versionInfo": "4.3.0",
+      "originator": "Organization: Red Hat Incorporated",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/newlib"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:newlib_project:newlib:4.3.0:*:*:*:*:*:*:*"
+        }
+      ],
+      "comment": "# The cve-exclude-list list contains CVEs, which were already evaluated and the package is not vulnerable.\ncve-exclude-list:\n-   cve: CVE-2024-30949\n    reason: A vulnerability was discovered in the gettimeofday system call implementation\n        within the RISC-V libgloss component of Newlib. ESP-IDF does not link against\n        libgloss for RISC-V, hence the issue is not directly applicable. Still, the\n        relevant fix has been patched through https://github.com/espressif/newlib-esp32/commit/047ba47013c2656a1e7838dc86cbc75aeeaa67a7\n"
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-nvs-flash",
+      "name": "component-nvs_flash",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/nvs_flash"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/nvs_flash"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-nvs-sec-provider",
+      "name": "component-nvs_sec_provider",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/nvs_sec_provider"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/nvs_sec_provider"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-protobuf-c",
+      "name": "component-protobuf-c",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/protobuf-c"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/protobuf-c"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-protobuf-c-protobuf-c",
+      "name": "protobuf-c",
+      "downloadLocation": "https://github.com/protobuf-c/protobuf-c",
+      "filesAnalyzed": false,
+      "supplier": "Organization: protobuf-c community <https://groups.google.com/g/protobuf-c>",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "summary": "Protocol Buffers implementation in C",
+      "versionInfo": "1.4.1",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/protobuf-c/protobuf-c.git@abc67a11c6db271bedbb9f58be85d6f4e2ea8389"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:protobuf-c_project:protobuf-c:1.4.1:*:*:*:*:*:*:*"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/protobuf-c/protobuf-c@abc67a11c6db271bedbb9f58be85d6f4e2ea8389"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-protocomm",
+      "name": "component-protocomm",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/protocomm"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/protocomm"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-pthread",
+      "name": "component-pthread",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/pthread"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/pthread"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-riscv",
+      "name": "component-riscv",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/riscv"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/riscv"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-soc",
+      "name": "component-soc",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/soc"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/soc"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-spi-flash",
+      "name": "component-spi_flash",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/spi_flash"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/spi_flash"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-spiffs",
+      "name": "component-spiffs",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/spiffs"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/spiffs"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-SUBMODULE-spiffs-spiffs",
+      "name": "submodule-spiffs-spiffs",
+      "downloadLocation": "https://github.com/pellepl/spiffs",
+      "filesAnalyzed": false,
+      "supplier": "Person: Peter Andersson",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "summary": "Wear-leveled SPI flash file system for embedded devices",
+      "versionInfo": "0.2-255-g0dbb3f71c5f6",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/pellepl/spiffs.git@0dbb3f71c5f6fae3747a9d935372773762baf852"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/pellepl/spiffs@0dbb3f71c5f6fae3747a9d935372773762baf852"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-tcp-transport",
+      "name": "component-tcp_transport",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/tcp_transport"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/tcp_transport"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-vfs",
+      "name": "component-vfs",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/vfs"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/vfs"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-wifi-provisioning",
+      "name": "component-wifi_provisioning",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "versionInfo": "v5.5.4",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/wifi_provisioning"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/wifi_provisioning"
+        }
+      ]
+    },
+    {
+      "SPDXID": "SPDXRef-COMPONENT-wpa-supplicant",
+      "name": "wpa_supplicant",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "supplier": "Organization: Espressif Systems (Shanghai) CO LTD",
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION",
+      "summary": "Espressif fork of wpa_supplicant - an open-source WPA/WPA2/WPA3/IEEE 802.1X Supplicant.",
+      "versionInfo": "2.10",
+      "originator": "Person: Jouni Malinen",
+      "externalRefs": [
+        {
+          "referenceCategory": "OTHER",
+          "referenceType": "repository",
+          "referenceLocator": "https://github.com/espressif/esp-idf.git@735507283d5b2f9fb363a1901172dbd9e847945d#components/wpa_supplicant"
+        },
+        {
+          "referenceCategory": "SECURITY",
+          "referenceType": "cpe23Type",
+          "referenceLocator": "cpe:2.3:a:w1.fi:wpa_supplicant:2.10:*:*:*:*:*:*:*"
+        },
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:github/espressif/esp-idf@735507283d5b2f9fb363a1901172dbd9e847945d#components/wpa_supplicant"
+        }
+      ],
+      "comment": "# The cve-exclude-list list contains CVEs, which were already evaluated and the package is not vulnerable.\ncve-exclude-list:\n-   cve: CVE-2023-52160\n    reason: The relevant fix has been patched with https://github.com/espressif/esp-idf/commit/59a62f2af65945f92d475089f9ce66fce56cc737\n"
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-PROJECT-esp32-c3"
+    },
+    {
+      "spdxElementId": "SPDXRef-PROJECT-esp32-c3",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-FRAMEWORK-esp-idf"
+    },
+    {
+      "spdxElementId": "SPDXRef-PROJECT-esp32-c3",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-TOOLCHAIN-riscv32-esp-elf"
+    },
+    {
+      "spdxElementId": "SPDXRef-PROJECT-esp32-c3",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-cxx"
+    },
+    {
+      "spdxElementId": "SPDXRef-PROJECT-esp32-c3",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-main"
+    },
+    {
+      "spdxElementId": "SPDXRef-PROJECT-esp32-c3",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-riscv"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-app-update",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-bootloader-support"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-app-update",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-efuse"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-app-update",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-app-format"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-app-update",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-partition"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-app-update",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-spi-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-app-update"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-bt"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-tls"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-app-format"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-driver-usb-serial-jtag"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-event"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-http-client"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-http-server"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-https-ota"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-https-server"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-hw-support"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-netif"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-partition"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-wifi"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-json"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-lwip"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-mbedtls"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-mqtt"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-nvs-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-spiffs"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-wifi-provisioning"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-at-modem",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-wpa-supplicant"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bootloader-support",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-efuse"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bootloader-support",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-app-format"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bootloader-support",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-heap"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bootloader-support",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-mbedtls"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bootloader-support",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-soc"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bootloader-support",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-spi-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-bt-controller-lib-esp32"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-bt-controller-lib-esp32c2-esp32c2-bt-lib"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-bt-controller-lib-esp32c3-family"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-bt-controller-lib-esp32c5-esp32c5-bt-lib"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-bt-controller-lib-esp32c6-esp32c6-bt-lib"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-bt-controller-lib-esp32h2-esp32h2-bt-lib"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-bt-esp-ble-mesh-lib-lib"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-bt-host-nimble-nimble"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-coex"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-driver-gpio"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-driver-uart"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-phy"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-ringbuf"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-wifi"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-mbedtls"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-nvs-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-soc"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-bt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-vfs"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-cxx",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-system"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-cxx",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-pthread"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-efuse",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-bootloader-support"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-efuse",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-app-format"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-efuse",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-partition"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-efuse",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-system"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-efuse",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-soc"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-efuse",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-spi-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-tls",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-tls",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-http-parser"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-tls",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-lwip"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-tls",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-mbedtls"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-coex",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-esp-coex-lib"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-coex",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-driver-gpio"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-coex",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-driver-uart",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-driver-gpio"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-driver-uart",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-mm"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-driver-uart",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-ringbuf"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-driver-usb-serial-jtag",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-driver-gpio"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-driver-usb-serial-jtag",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-ringbuf"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-driver-usb-serial-jtag",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-event",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-common"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-event",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-event",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-freertos"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-event",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-log"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-http-client",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-event"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-http-client",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-http-parser"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-http-client",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-lwip"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-http-client",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-tcp-transport"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-http-server",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-event"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-http-server",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-http-server",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-http-parser"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-http-server",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-lwip"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-http-server",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-mbedtls"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-https-ota",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-app-update"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-https-ota",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-bootloader-support"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-https-ota",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-app-format"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-https-ota",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-event"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-https-ota",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-http-client"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-https-ota",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-partition"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-https-ota",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-log"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-https-server",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-tls"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-https-server",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-event"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-https-server",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-http-server"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-https-server",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-lwip"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-hw-support",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-bootloader-support"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-hw-support",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-efuse"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-hw-support",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-driver-gpio"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-hw-support",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-mm"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-hw-support",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-security"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-hw-support",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-hw-support",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-soc"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-hw-support",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-spi-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-mm",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-heap"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-mm",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-spi-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-netif",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-event"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-partition",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-app-update"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-partition",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-bootloader-support"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-partition",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-system"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-partition",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-spi-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-phy",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-esp-phy-lib"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-phy",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-efuse"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-phy",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-driver-gpio"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-phy",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-phy",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-wifi"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-phy",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-nvs-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-security",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-efuse"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-security",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-hw-support"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-security",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-system"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-security",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-system",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-bootloader-support"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-system",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-mm"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-system",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-system",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-spi-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-vfs-console",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-driver-uart"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-vfs-console",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-driver-usb-serial-jtag"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-vfs-console",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-vfs"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-wifi",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-esp-wifi-lib"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-wifi",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-coex"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-wifi",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-event"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-wifi",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-netif"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-wifi",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-phy"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-wifi",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-wifi",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-hal"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-wifi",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-lwip"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-wifi",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-nvs-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-esp-wifi",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-wpa-supplicant"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-freertos",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBPACKAGE-freertos-FreeRTOS-Kernel"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-hal",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-soc"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-heap",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-heap-tlsf"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-heap",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-soc"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-json",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-json-cJSON"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-log",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-hw-support"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-log",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-hal"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-log",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-soc"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-lwip",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-lwip-lwip"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-lwip",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-vfs"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-main",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-at-modem"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-main",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-nvs-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-main",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-nvs-sec-provider"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-main",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-spi-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-mbedtls",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-mbedtls-mbedtls"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-mbedtls",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-hw-support"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-mbedtls",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-soc"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-mqtt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-mqtt-esp-mqtt"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-mqtt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-event"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-mqtt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-hw-support"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-mqtt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-mqtt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-heap"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-mqtt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-http-parser"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-mqtt",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-tcp-transport"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-newlib",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-VIRTPACKAGE-newlib-sbom-newlibc.yml"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-newlib",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-soc"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-newlib",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-spi-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-nvs-flash",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-partition"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-nvs-flash",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-newlib"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-nvs-flash",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-spi-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-nvs-sec-provider",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-bootloader-support"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-nvs-sec-provider",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-efuse"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-nvs-sec-provider",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-partition"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-nvs-sec-provider",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-nvs-flash"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-protobuf-c",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-protobuf-c-protobuf-c"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-protocomm",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-bt"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-protocomm",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-driver-uart"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-protocomm",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-http-server"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-protocomm",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-mbedtls"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-protocomm",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-protobuf-c"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-riscv",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-hal"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-riscv",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-soc"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-spi-flash",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-app-update"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-spi-flash",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-bootloader-support"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-spi-flash",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-driver-gpio"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-spi-flash",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-mm"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-spi-flash",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-hal"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-spi-flash",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-soc"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-spiffs",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-SUBMODULE-spiffs-spiffs"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-spiffs",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-bootloader-support"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-spiffs",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-partition"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-spiffs",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-vfs"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-tcp-transport",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-tls"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-tcp-transport",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-tcp-transport",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-lwip"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-vfs",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-driver-uart"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-vfs",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-driver-usb-serial-jtag"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-vfs",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-vfs",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-vfs-console"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-wifi-provisioning",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-bt"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-wifi-provisioning",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-wifi-provisioning",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-wifi"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-wifi-provisioning",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-json"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-wifi-provisioning",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-lwip"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-wifi-provisioning",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-protobuf-c"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-wifi-provisioning",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-protocomm"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-wpa-supplicant",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-timer"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-wpa-supplicant",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-esp-wifi"
+    },
+    {
+      "spdxElementId": "SPDXRef-COMPONENT-wpa-supplicant",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-COMPONENT-mbedtls"
+    }
+  ]
+}

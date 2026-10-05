@@ -1,0 +1,144 @@
+menu "AT Modem (M2M-AT Command Set)"
+
+    config AT_MODEM_UART_USE_USB_SERIAL_JTAG
+        bool "Carry AT commands over the native USB Serial/JTAG port instead of a physical UART"
+        default y if IDF_TARGET_ESP32C3
+        default n
+        help
+            ESP32-C3 has a built-in USB Serial/JTAG controller -- the same
+            USB cable used for flashing/monitoring already shows up as a COM
+            port (e.g. COM7) with no extra wiring. Enabling this routes the
+            AT command interface over that same USB connection instead of
+            the physical UART1 GPIO4/5/GND pins below, so no second
+            USB-serial adapter is needed just to send AT commands.
+
+            Trade-off: the console's secondary output to USB Serial/JTAG
+            must be disabled (menuconfig: Component config -> ESP System
+            Settings -> Channel for console secondary output -> No
+            secondary output, i.e. CONFIG_ESP_CONSOLE_SECONDARY_NONE) so
+            ESP_LOG lines don't get interleaved into the AT byte stream and
+            corrupt command/response parsing on the host side. With it
+            disabled, ESP_LOG output only goes to the primary console
+            (physical UART0, GPIO20/21 by default) -- wire a separate
+            adapter there if you need logs while also testing AT commands
+            over USB.
+
+            The AT_MODEM_UART_PORT/TX_GPIO/RX_GPIO settings below are
+            ignored while this is enabled.
+
+    config AT_MODEM_UART_PORT
+        int "UART port number used for the AT command interface"
+        depends on !AT_MODEM_UART_USE_USB_SERIAL_JTAG
+        range 0 1
+        default 1
+        help
+            ESP32-C3 only has UART0/1 (no UART2). UART0 is normally reserved
+            for the console, so UART1 (default) is the practical choice.
+
+    config AT_MODEM_UART_TX_GPIO
+        int "AT command UART TX GPIO"
+        depends on !AT_MODEM_UART_USE_USB_SERIAL_JTAG
+        default 5
+        help
+            GPIO16/17 (used on the original ESP32 target) are unusable here --
+            on ESP32-C3 they're wired internally to the embedded SPI flash
+            (GPIO12-17). Remapped to GPIO5, matching the earlier ESP32_C3 port
+            of this same AT-modem framework (see ESP32_C3_260809_ver_0000).
+
+    config AT_MODEM_UART_RX_GPIO
+        int "AT command UART RX GPIO"
+        depends on !AT_MODEM_UART_USE_USB_SERIAL_JTAG
+        default 4
+        help
+            See AT_MODEM_UART_TX_GPIO -- remapped to GPIO4 for the same
+            embedded-flash-pin conflict reason.
+
+    config AT_MODEM_UART_BAUD_RATE
+        int "AT command UART baud rate"
+        default 115200
+
+    config AT_MODEM_UART_RX_BUF_SIZE
+        int "AT command UART RX ring buffer size (bytes)"
+        default 4096
+        help
+            Sized well above one line's worth of ordinary AT traffic so a
+            burst -- notably an AT*M2M*NET_SEND payload, up to 16KB stuffed
+            on the wire (doc Ch.4.2/1.4) -- doesn't overrun the driver
+            before the byte-at-a-time line reader (at_uart.c) can drain it.
+
+    config AT_MODEM_UART_TX_BUF_SIZE
+        int "AT command UART TX ring buffer size (bytes)"
+        default 4096
+
+    config AT_MODEM_SOFTAP_ALLOW_OPEN
+        bool "Allow an open (no password) SoftAP"
+        default y
+        help
+            When disabled, AT*M2M*WF_APSTART with auth=0 fails with reason 0
+            and a saved AT*M2M*WF_APMODE SoftAP profile without a password
+            is not started: every SoftAP this module brings up requires a
+            WPA2/WPA3 passphrase. Recommended off for an EN 18031-1 release
+            build, since the configuration web server and NET_SERVER
+            sockets are otherwise reachable by anyone in radio range.
+
+    config AT_MODEM_EAP_ALLOW_NO_CA
+        bool "Allow WPA2/WPA3-Enterprise without verifying the RADIUS server"
+        default n
+        help
+            By default the RADIUS server certificate of an Enterprise
+            (PEAP/TTLS/TLS) network is always verified: against the CA staged
+            as ca.pem (web Enterprise screen) or with WF_EAPCERT type 2, or,
+            when none is staged, against the built-in public CA bundle. A
+            server signed by a private CA then needs that CA staged first.
+
+            Enabling this restores the old behaviour of skipping the check
+            when no CA is staged. Not recommended: any access point posing
+            as the network can then collect the inner credentials (EN
+            18031-1 SCM-2).
+
+    config AT_MODEM_HTTPD_MAX_SOCKETS
+        int "Configuration web server: concurrent client connections"
+        range 1 7
+        default 3
+        help
+            Client sockets the configuration web server keeps open at once
+            (least recently used one is closed when a new client arrives).
+            Bounds the RAM an HTTPS connection flood can take (each TLS
+            session holds about 20 KB) and keeps LWIP sockets free for
+            NET_CONN/NET_SERVER, MQTT and the HTTP client (EN 18031-1
+            RLM-1).
+
+    choice AT_MODEM_HTTPD_MODE
+        prompt "Configuration web server (NET_HTTPDSTART) allowed transport"
+        default AT_MODEM_HTTPD_MODE_BOTH
+        help
+            Which transport AT*M2M*NET_HTTPDSTART may start the embedded
+            configuration web server on. A build-time policy (EN 18031-1
+            secure-communication requirement SCM-1): a release that must
+            never serve the login page or credentials in the clear selects
+            HTTPS only.
+
+            A NET_HTTPDSTART request for a transport this build excludes
+            fails with reason 4. The boot-time auto-restart (from the last
+            NET_HTTPDSTART saved in NVS) follows the same policy: an HTTPS
+            only build never falls back to plain HTTP (not even when the
+            saved certificate is missing -- the server just stays down), and
+            an HTTP only build starts a saved ssl=1 configuration as plain
+            HTTP.
+
+        config AT_MODEM_HTTPD_MODE_BOTH
+            bool "HTTP or HTTPS (chosen per NET_HTTPDSTART's <ssl> argument)"
+        config AT_MODEM_HTTPD_MODE_HTTP_ONLY
+            bool "HTTP only"
+        config AT_MODEM_HTTPD_MODE_HTTPS_ONLY
+            bool "HTTPS only"
+    endchoice
+
+    config AT_MODEM_EVENT_QUEUE_LEN
+        int "Async event queue depth"
+        default 16
+        help
+            Number of pending *M2M* event lines that can be queued before the
+            event writer task drains them to UART.
+
+endmenu

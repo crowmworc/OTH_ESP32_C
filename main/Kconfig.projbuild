@@ -1,0 +1,172 @@
+menu "M2M Release Naming (M2M_SW Release Naming Guide v2.0)"
+
+    config M2M_CHIP_CODE
+        string
+        default "EC3"
+        help
+            Fixed for this target -- ESP32-C3 is registered as EC3 in
+            03_설계문서/M2M_Code Register.xlsx's 칩코드 sheet. Only change
+            this if this project is ever ported to a different chip that
+            has its own registered code (idf.py set-target would also need
+            to change).
+
+    choice M2M_BOARD
+        prompt "Board code (보드코드 sheet)"
+        default M2M_BOARD_MA0
+        help
+            The BOARD segment of the release filename (3 fixed digits:
+            category + serial + revision). Codes not in the registry must
+            not be used -- register a new one there first.
+
+        config M2M_BOARD_MA0
+            bool "MA0 - ESP32-C3-MINI-1 (vendor standard module, PCB antenna)"
+        config M2M_BOARD_MB0
+            bool "MB0 - ESP32-C3-MINI-1U (vendor standard module, U.FL antenna)"
+        config M2M_BOARD_EA1
+            bool "EA1 - M2M ESP32-C3 EV Board Rev 1 (evaluation/dev board)"
+    endchoice
+
+    config M2M_BOARD_CODE
+        string
+        default "MA0" if M2M_BOARD_MA0
+        default "MB0" if M2M_BOARD_MB0
+        default "EA1" if M2M_BOARD_EA1
+
+    config M2M_FLASH_CODE
+        string "Flash code (N01/N02/N04/N08/N16 normal, H02/H04/H08 high-temp)"
+        default "N04"
+        help
+            This board has 4MB flash, normal temperature grade -> N04.
+            Must match CONFIG_ESPTOOLPY_FLASHSIZE and partitions.csv.
+
+    config M2M_CLK_CODE
+        string "Reference XTAL clock code"
+        default "40M"
+        help
+            ESP32-C3 only supports a 40MHz XTAL, so this is always "40M".
+            Kept as an explicit field (not hardcoded away) so the
+            release-naming machinery doesn't need a special case for
+            single-frequency chips when other chips are added later.
+
+    config M2M_CUSTOMER_CODE
+        string "Customer code, 2 letters (고객코드 sheet)"
+        default "AC"
+        help
+            "AC" is the ESP32-C3 standard-board default (no specific
+            customer, Naming Guide 4.5.1). Real customer builds get a code
+            assigned starting from BA in the registry -- register it there
+            before using it here.
+
+    choice M2M_REL
+        prompt "Contract status (REL)"
+        default M2M_REL_SAMPLE
+        help
+            Third character of the CUSTOMER segment.
+
+        config M2M_REL_SAMPLE
+            bool "0 - Non-contracted (sample/standard distribution)"
+        config M2M_REL_CONTRACTED
+            bool "1 - Contracted customer (incl. production)"
+    endchoice
+
+    config M2M_REL_CODE
+        string
+        default "0" if M2M_REL_SAMPLE
+        default "1" if M2M_REL_CONTRACTED
+
+    config M2M_PWRON_NOTIFY
+        bool "Send *M2M*DEVICEREADY on boot (CONFIG segment PWRON=1)"
+        default n
+        help
+            Naming Guide 4.6: PWRON=0 (this project's actual default) means
+            the host is expected to detect readiness by polling AT commands
+            rather than waiting for a boot notification -- M2M-AT Command
+            Set doesn't define one either. A *M2M*DEVICEREADY notification
+            was nonetheless added unconditionally during the 2026-09-06
+            spec audit; gating it here makes the release filename's PWRON
+            digit describe what the firmware actually does, and lets this
+            be turned on for configurations where the module powers up
+            before its host and the host needs to wait for it instead of
+            polling.
+
+    choice M2M_FS
+        prompt "Filesystem (CONFIG segment FS)"
+        default M2M_FS_SPIFFS
+        help
+            Must match this project's actual storage backend -- changing
+            this choice alone does not migrate partitions.csv/fs_store.c.
+
+        config M2M_FS_NONE
+            bool "N - none"
+        config M2M_FS_FATFS
+            bool "F - FATFS (wear levelling)"
+        config M2M_FS_LITTLEFS
+            bool "L - LittleFS"
+        config M2M_FS_SPIFFS
+            bool "S - SPIFFS (this project's current partitions.csv/fs_store.c)"
+    endchoice
+
+    config M2M_FS_CODE
+        string
+        default "N" if M2M_FS_NONE
+        default "F" if M2M_FS_FATFS
+        default "L" if M2M_FS_LITTLEFS
+        default "S" if M2M_FS_SPIFFS
+
+    choice M2M_SEC
+        prompt "Security configuration (CONFIG segment SEC)"
+        default M2M_SEC_NONE
+        help
+            Must match the actual Secure Boot/Flash Encryption sdkconfig
+            options -- this choice is descriptive, not a switch that turns
+            those on by itself (Secure Boot/Flash Encryption involve eFuse
+            burns that this project does not automate).
+
+        config M2M_SEC_NONE
+            bool "N - no security (development/sample, this project's current build)"
+        config M2M_SEC_SECUREBOOT
+            bool "B - Secure Boot only"
+        config M2M_SEC_FLASHENC
+            bool "E - Flash Encryption only"
+        config M2M_SEC_BOTH
+            bool "S - Secure Boot + Flash Encryption (production)"
+    endchoice
+
+    config M2M_SEC_CODE
+        string
+        default "N" if M2M_SEC_NONE
+        default "B" if M2M_SEC_SECUREBOOT
+        default "E" if M2M_SEC_FLASHENC
+        default "S" if M2M_SEC_BOTH
+
+    config M2M_CMD_CODE
+        string
+        default "MM"
+        help
+            AT command-set code (명령체계코드 sheet). Fixed at "MM" (this
+            project's own M2M-AT dialect) -- IC (ICT-AT compatible) and ES
+            (ESP-AT compatible) are registered as reserved but have no
+            implementation anywhere in this tree to switch to yet. If one
+            is ever added as an alternate at_dispatch.c-equivalent table,
+            this becomes a real choice and the build picks which dispatch
+            table's sources get compiled in.
+
+    config M2M_APP_CODE
+        string
+        default "AT"
+        help
+            Firmware-type code (<APP> in the FW segment). Fixed at "AT" --
+            this project only builds the full M2M-AT modem firmware, not
+            the NCP/APP/MFG/RFT variants the naming guide also defines.
+
+    config M2M_IF_CODE
+        string
+        default "USB" if AT_MODEM_UART_USE_USB_SERIAL_JTAG
+        default "UART"
+        help
+            Host-interface code (<IF> in the FW segment). Derived from the
+            AT Modem menu's "carry AT commands over native USB Serial/JTAG"
+            setting above -- USB when that's on (native USB Serial/JTAG),
+            UART when it's off (physical UART1).
+
+endmenu

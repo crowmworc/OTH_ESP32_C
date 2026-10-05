@@ -1,0 +1,30 @@
+# Name,   Type, SubType, Offset,  Size,  Flags
+# Two-OTA-slot table, carried over from the ESP32_N4 port of this same
+# AT-modem framework. No "factory" slot -- the M2M-AT emulation has no
+# separate factory-reset firmware image concept (AT*M2M*SYS_FACTORY only
+# resets Wi-Fi/NV config), so both slots are plain OTA app partitions.
+# nvs holds small config (SYS_CONF/COUNTRY/SNTP/HTTP settings via
+# at_nvs_kv.c) -- actual file payloads (certs from AT*M2M*NET_HTTPDOWNLOAD,
+# referenced later by NET_CONN=ssl/MQTT_CONF/AWS_CERT) live on the "storage"
+# SPIFFS partition below instead (fs_store.c), added in Phase 3.
+# No mcu_fw partition here (unlike the earlier ESP32_C3_260809_ver_0000
+# port): the MCU-firmware relay (MOTA_* commands) has no counterpart in the
+# M2M-AT Command Set spec and is out of scope for this project.
+# ota_0/ota_1 bumped 1536K -> 1664K on 2026-09-26 when AT*M2M*BLE_PROV
+# (wifi_provisioning + protocomm + NimBLE) pushed the image to 0x192490
+# bytes, 0x12490 over the old 1536K partitions. 1664K (0x1A0000, a 64K-
+# aligned size) leaves ~148KB free across the 4MB flash map -- see
+# doc/M2M BT Provisioning Architecture Review.docx for why BLE was added.
+# 2026-10-04 (EN 18031-1 to-do B-06, option c): storage 512K -> 256K and
+# ota_0/ota_1 1664K -> 1792K (0x1C0000). The app image (~1599KB) had only
+# ~64KB (4%) headroom, too little for Secure Boot / TLS 1.3 / filesystem
+# changes, while storage held only ~4.7KB of 474KB. Layout: storage
+# 0x1C000-0x5C000, ota_0 0x60000, ota_1 0x220000, ends 0x3E0000; the last
+# 128K of the 4MB flash stays unused as a reserve. Changing this table needs
+# a USB reflash (not OTA), and moving storage wipes the SPIFFS contents.
+nvs,      data, nvs,     ,        0x10000,
+otadata,  data, ota,     ,        0x2000,
+phy_init, data, phy,     ,        0x1000,
+storage,  data, spiffs,  ,        256K,
+ota_0,    app,  ota_0,   ,        1792K,
+ota_1,    app,  ota_1,   ,        1792K,
