@@ -1,7 +1,20 @@
 |Supported Targets|ESP32-C3|
 |-|-|
 
-# M2M ESP32-C3 — M2M-AT Command Set
+# M2M ESP32-C3 — M2M-AT / OTH-AT Command Set
+
+**This repository (OTH_ESP32_C) builds the OTH-AT command set.** The
+firmware answers either `AT*M2M*...` (M2M-AT Command Set) or `AT*OTH*...`
+(OTH-AT Compatible Command Set: Essentials, MQTT, AWS volumes), chosen at
+build time with menuconfig → *AT Modem* → *AT command set*
+(`CONFIG_AT_MODEM_CMDSET_M2M` / `CONFIG_AT_MODEM_CMDSET_OTH`). Only the
+chosen set's handlers are linked in; Wi-Fi, sockets, HTTP, MQTT, AWS IoT,
+the configuration web UI and the EN 18031-1 security features are shared.
+This repository's `sdkconfig` selects OTH. The per-command status, the
+decisions taken where the OTH-AT guides are silent, and the open items are
+in `doc/OTH-AT_Command_Status.xlsx`; the OTH-AT phases are at the end of
+*Progress* below (Phase 16-21).
+
 
 AT-command modem (`components/at_modem/`) implementing the protocol
 documented in `M2M-AT Command Set.docx`
@@ -633,6 +646,37 @@ for the full command-by-command mapping and rationale.
       v5.5.5 (mbedTLS 3.6.6 plus the DHCP server fix) resolves the ones
       that matter -- recommended as the next step. Regenerate the SBOM and
       re-run the check after every ESP-IDF update or release.
+
+- [x] **Phase 16** — OTH-AT: build-time command set choice, 2026-10-05.
+      Kconfig `AT_MODEM_CMDSET`; the tag in the parser, replies and events
+      follows it (`include/at_cmdset.h`), one dispatch table per set,
+      unknown command 99 (M2M) / 9 (OTH). OTH build ~23% app space free
+      vs 6% for M2M.
+- [x] **Phase 17** — OTH-AT Basic + Wi-Fi (Essentials Ch.2/3,
+      `cmd_oth_basic.c`, `cmd_oth_wifi.c`): station, SoftAP, WPS, EAP,
+      AUCONMODE/SMODE, events ASSOCIATED/DISASSOCIATED/IPALLOCATED/
+      IPRELEASED/INITSCAN/DEVICEREADY. IBSS, WDS, P2P, 11g/11n-only and
+      5 GHz modes are not supported by ESP32-C3; WEP refused.
+- [x] **Phase 18** — OTH-AT TCP/IP + SSL (Ch.4/5): `oth_sock.c`, a
+      BSD-style socket engine (descriptors TCP 0-2, UDP 3-5, SSL 6, a
+      listening socket keeps its descriptor for all clients, async
+      CONNECT), data mode with DATA_INTERVAL aggregation and a 500 ms
+      "+++" guard. Fixed on the way (also M2M): LF bytes inside a command
+      line were dropped, corrupting payloads.
+- [x] **Phase 19** — OTH-AT services (Ch.6) + MIB/SETMIB + FWUPGRADE: HTTP
+      client with streamed HTTPBODY, HTTP_DOWNLOAD, HTTPD_*, SNTP*, FTPC_*,
+      OTA_VERCHECK/REQUEST, XMODEM firmware download into ota_0/ota_1.
+      DDNS/UPnP/LPD out of scope.
+- [x] **Phase 20** — OTH-AT MQTT volume (`cmd_oth_mqtt.c`): one client with
+      indexed settings, auto-subscribe, persistence 0/1/2, MQTT_CERT; the
+      web MQTT screen drives it in the OTH build. Verified against
+      broker.emqx.io (1883/8883).
+- [x] **Phase 21** — OTH-AT AWS volume (`cmd_oth_aws.c`): pairing package
+      `aws_conf.json` + `aws_claim.pem`, Fleet Provisioning by Claim as
+      "authenticate", topics `<thing>/up|down/<apiNo>`. Verified on the
+      AWS test account (provisioning, CONNECT, SEND, reboot reconnect);
+      AWS_RECV not yet verified. CoAP volume not implemented (decision
+      2026-10-05).
 
 Explicitly out of scope (no corresponding chapter in the M2M-AT Command Set
 doc, or excluded by decision): Wi-Fi Direct/P2P, CoAP, oneM2M, UPnP, DDNS,

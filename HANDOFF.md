@@ -1,5 +1,10 @@
 # HANDOFF — 재설치 후 바로 이어서 작업하기
 
+> **이 저장소(OTH_ESP32_C)는 OTH-AT 빌드용이다.** 아래 내용은 M2M 저장소 기준으로
+> 쓴 것이고, 빌드·플래시·보드 주의사항은 그대로 적용된다. OTH 관련 현황은
+> `README.md` 맨 위 설명과 Progress Phase 16-21, `doc/OTH-AT_Command_Status.xlsx`를 볼 것.
+> 테스트 AP는 kangaps25(보드에 프로필 저장, AUCONMODE=1), AWS 페어링 파일은 보드에 저장돼 있다.
+
 PC를 포맷하고 GitHub에서 다시 받은 뒤 바로 작업을 재개하기 위한 문서.
 기준일: **2026-10-05** (GitHub `main` = 이 문서를 추가한 커밋).
 기능별 상세 변경 이력은 `README.md`의 **Progress** 섹션(Phase 0~15)이 원본이다.
