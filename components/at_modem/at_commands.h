@@ -62,6 +62,8 @@ void cmd_net_sntp(const at_command_t *cmd);
 void cmd_net_sntpconf(const at_command_t *cmd);
 void cmd_net_dhcps(const at_command_t *cmd);
 void cmd_net_dhcp(const at_command_t *cmd);
+struct ip_addr;
+void at_net_ping_run(const char *name, const struct ip_addr *target, int count, int size, bool oth);
 
 /* cmd_net_dtmode.c -- transparent passthrough (doc Ch.4.1/8.5) */
 void cmd_net_dtmode(const at_command_t *cmd);

@@ -57,6 +57,31 @@ void cmd_oth_wps_pbc(const at_command_t *cmd);
 void cmd_oth_wps_pin(const at_command_t *cmd);
 void cmd_oth_wps_cancel(const at_command_t *cmd);
 
+/* cmd_oth_net.c -- Ch.4 TCP/IP and Ch.5 SSL AT Commands */
+void cmd_oth_ipconfig(const at_command_t *cmd);
+void cmd_oth_socket(const at_command_t *cmd);
+void cmd_oth_close(const at_command_t *cmd);
+void cmd_oth_connect(const at_command_t *cmd);
+void cmd_oth_disconnect(const at_command_t *cmd);
+void cmd_oth_bind(const at_command_t *cmd);
+void cmd_oth_listen(const at_command_t *cmd);
+void cmd_oth_lstatus(const at_command_t *cmd);
+void cmd_oth_send(const at_command_t *cmd);
+void cmd_oth_sendto(const at_command_t *cmd);
+void cmd_oth_tcpkeep(const at_command_t *cmd);
+void cmd_oth_nw_conn(const at_command_t *cmd);
+void cmd_oth_ping(const at_command_t *cmd);
+void cmd_oth_dnsquery(const at_command_t *cmd);
+void cmd_oth_data_socket(const at_command_t *cmd);
+void cmd_oth_data_interval(const at_command_t *cmd);
+void cmd_oth_ssl_connect(const at_command_t *cmd);
+void cmd_oth_ssl_send(const at_command_t *cmd);
+void cmd_oth_ssl_close(const at_command_t *cmd);
+void cmd_oth_ssl_svr_start(const at_command_t *cmd);
+void cmd_oth_ssl_svr_send(const at_command_t *cmd);
+void cmd_oth_ssl_svr_close(const at_command_t *cmd);
+void at_oth_net_init(void);
+
 /* Boot-time setup run from at_modem_init() (EVTDEL, SoftAP addressing). */
 void at_oth_init(void);
 /* Factory SoftAP SSID, "OTH_" + the last three MAC bytes. */

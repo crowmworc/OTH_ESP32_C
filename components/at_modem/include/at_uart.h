@@ -51,6 +51,9 @@ void at_uart_write_atomic2(const char *a, size_t a_len, const char *b, size_t b_
  */
 typedef void (*at_uart_passthrough_sink_t)(const uint8_t *data, size_t len);
 void at_uart_set_passthrough(at_uart_passthrough_sink_t sink, void (*on_escape)(void));
+/* Silence (ms) that must follow "+++" to leave passthrough: 20 by default
+ * (M2M-AT), 500 for OTH-AT. */
+void at_uart_set_escape_guard_ms(int ms);
 
 /**
  * Blocking read of exactly `len` raw bytes from the host, bypassing the

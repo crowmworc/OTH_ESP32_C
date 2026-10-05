@@ -46,6 +46,11 @@ void at_event_set_enabled(bool enabled)
     atomic_store(&s_enabled, enabled);
 }
 
+bool at_event_enabled(void)
+{
+    return atomic_load(&s_enabled);
+}
+
 void at_event_post(const char *fmt, ...)
 {
     if (!atomic_load(&s_enabled)) {

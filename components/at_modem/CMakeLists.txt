@@ -27,7 +27,9 @@ set(srcs
 if(CONFIG_AT_MODEM_CMDSET_OTH)
     list(APPEND srcs
         "cmd_oth_basic.c"
-        "cmd_oth_wifi.c")
+        "cmd_oth_wifi.c"
+        "oth_sock.c"
+        "cmd_oth_net.c")
 endif()
 
 idf_component_register(

@@ -86,6 +86,13 @@ void at_uart_set_passthrough(at_uart_passthrough_sink_t sink, void (*on_escape)(
  * bytes without forwarding them; a 20ms read timeout with exactly 3
  * buffered confirms the escape, while any other byte (or a 4th '+')
  * flushes the buffered '+'s as ordinary data and resets. */
+static int s_escape_guard_ms = 20;
+
+void at_uart_set_escape_guard_ms(int ms)
+{
+    s_escape_guard_ms = ms;
+}
+
 static void at_uart_passthrough_loop(void)
 {
     int plus_run = 0;
@@ -94,6 +101,10 @@ static void at_uart_passthrough_loop(void)
 
     while (atomic_load(&s_passthrough_active)) {
         int n = at_transport_read_byte(&byte, pdMS_TO_TICKS(20));
+        if (n <= 0 && plus_run == 3 && s_escape_guard_ms > 20) {
+            /* OTH-AT: "+++" must be followed by a longer silence */
+            n = at_transport_read_byte(&byte, pdMS_TO_TICKS(s_escape_guard_ms - 20));
+        }
         if (n <= 0) {
             if (plus_run == 3) {
                 void (*on_escape)(void) = s_passthrough_on_escape;

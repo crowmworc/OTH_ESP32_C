@@ -28,11 +28,11 @@ typedef struct {
     SemaphoreHandle_t done_sem;
     uint32_t sent;
     uint32_t received;
+    bool oth; /* OTH-AT PING: *OTH*PINGREPLY per reply, no closing line */
 } ping_ctx_t;
 
 static void on_ping_success(esp_ping_handle_t hdl, void *args)
 {
-    (void)args;
     ip_addr_t target_addr;
     uint32_t recv_len, elapsed_ms;
     esp_ping_get_profile(hdl, ESP_PING_PROF_IPADDR, &target_addr, sizeof(target_addr));
@@ -40,7 +40,11 @@ static void on_ping_success(esp_ping_handle_t hdl, void *args)
     esp_ping_get_profile(hdl, ESP_PING_PROF_TIMEGAP, &elapsed_ms, sizeof(elapsed_ms));
     char ip[16];
     ipaddr_ntoa_r(&target_addr, ip, sizeof(ip));
-    at_reply_line("NET_PING:IND %s %u %u", ip, (unsigned)recv_len, (unsigned)elapsed_ms);
+    if (((ping_ctx_t *)args)->oth) {
+        at_reply_line("PINGREPLY:%s %u %u", ip, (unsigned)recv_len, (unsigned)elapsed_ms);
+    } else {
+        at_reply_line("NET_PING:IND %s %u %u", ip, (unsigned)recv_len, (unsigned)elapsed_ms);
+    }
 }
 
 static void on_ping_timeout(esp_ping_handle_t hdl, void *args)
@@ -76,15 +80,22 @@ void cmd_net_ping(const at_command_t *cmd)
         at_reply_error(cmd->name, AT_ERR_ARG);
         return;
     }
+    at_net_ping_run(cmd->name, &target_addr, count, size, false);
+}
 
+/* Replies OK, then runs the ping to completion (bounded), writing one line
+ * per reply. Shared by NET_PING and OTH-AT PING. */
+void at_net_ping_run(const char *name, const ip_addr_t *target, int count, int size, bool oth)
+{
+    ip_addr_t target_addr = *target;
     esp_ping_config_t config = ESP_PING_DEFAULT_CONFIG();
     config.target_addr = target_addr;
     config.count = (uint32_t)count;
     config.data_size = (uint32_t)size;
 
-    ping_ctx_t ctx = {.done_sem = xSemaphoreCreateBinary()};
+    ping_ctx_t ctx = {.done_sem = xSemaphoreCreateBinary(), .oth = oth};
     if (!ctx.done_sem) {
-        at_reply_error(cmd->name, AT_ERR_GENERIC);
+        at_reply_error(name, oth ? 7 : AT_ERR_GENERIC);
         return;
     }
     esp_ping_callbacks_t cbs = {
@@ -96,17 +107,19 @@ void cmd_net_ping(const at_command_t *cmd)
     esp_ping_handle_t hdl;
     if (esp_ping_new_session(&config, &cbs, &hdl) != ESP_OK) {
         vSemaphoreDelete(ctx.done_sem);
-        at_reply_error(cmd->name, AT_ERR_GENERIC);
+        at_reply_error(name, oth ? 7 : AT_ERR_GENERIC);
         return;
     }
 
-    at_reply_ok(cmd->name, NULL);
+    at_reply_ok(name, NULL);
     esp_ping_start(hdl);
     /* Bounded wait: default interval 1s/request plus slack, so this can't
      * hang the AT dispatcher indefinitely against an unreachable host. */
     if (xSemaphoreTake(ctx.done_sem, pdMS_TO_TICKS((uint32_t)count * 1500 + 5000)) != pdTRUE) {
-        at_reply_line("NET_PING:ERROR %d", AT_ERR_TIMEOUT);
-    } else {
+        if (!oth) {
+            at_reply_line("NET_PING:ERROR %d", AT_ERR_TIMEOUT);
+        }
+    } else if (!oth) {
         at_reply_line("NET_PING:DONE %u %u", (unsigned)ctx.sent, (unsigned)ctx.received);
     }
     esp_ping_delete_session(hdl);

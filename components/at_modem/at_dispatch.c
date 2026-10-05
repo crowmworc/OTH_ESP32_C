@@ -161,6 +161,30 @@ static const at_dispatch_entry_t s_table[] = {
     { "WPS_PBC",      cmd_oth_wps_pbc,      false },
     { "WPS_PIN",      cmd_oth_wps_pin,      false },
     { "WPS_CANCEL",   cmd_oth_wps_cancel,   false },
+    /* Ch.4 TCP/IP */
+    { "IPCONFIG",     cmd_oth_ipconfig,     false },
+    { "SOCKET",       cmd_oth_socket,       false },
+    { "CLOSE",        cmd_oth_close,        false },
+    { "CONNECT",      cmd_oth_connect,      false },
+    { "DISCONNECT",   cmd_oth_disconnect,   false },
+    { "BIND",         cmd_oth_bind,         false },
+    { "LISTEN",       cmd_oth_listen,       false },
+    { "LSTATUS",      cmd_oth_lstatus,      false },
+    { "SEND",         cmd_oth_send,         true }, /* payload may contain spaces */
+    { "SENDTO",       cmd_oth_sendto,       true },
+    { "TCPKEEP",      cmd_oth_tcpkeep,      false },
+    { "NW_CONN",      cmd_oth_nw_conn,      false },
+    { "PING",         cmd_oth_ping,         false },
+    { "DNSQUERY",     cmd_oth_dnsquery,     false },
+    { "DATA_SOCKET",  cmd_oth_data_socket,  false },
+    { "DATA_INTERVAL",cmd_oth_data_interval,false },
+    /* Ch.5 SSL */
+    { "SSL_CONNECT",  cmd_oth_ssl_connect,  false },
+    { "SSL_SEND",     cmd_oth_ssl_send,     true },
+    { "SSL_CLOSE",    cmd_oth_ssl_close,    false },
+    { "SSL_SVR_START",cmd_oth_ssl_svr_start,false },
+    { "SSL_SVR_SEND", cmd_oth_ssl_svr_send, true },
+    { "SSL_SVR_CLOSE",cmd_oth_ssl_svr_close,false },
 };
 #endif
 

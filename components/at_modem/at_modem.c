@@ -18,7 +18,12 @@ void at_modem_init(void)
     at_event_init();
     at_uart_init();
     at_wifi_init();
+#if CONFIG_AT_MODEM_CMDSET_OTH
+    at_oth_net_init(); /* OTH-AT sockets (oth_sock.c) instead of net_link.c */
+    at_uart_set_escape_guard_ms(500);
+#else
     net_link_init();
+#endif
     fs_store_init();
     at_httpd_init();
     at_ble_prov_init();
