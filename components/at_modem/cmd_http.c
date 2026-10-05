@@ -36,6 +36,11 @@
 #include "at_event.h"
 #include "at_uart.h"
 #include "fs_store.h"
+#include "at_cmdset.h"
+#if CONFIG_AT_MODEM_CMDSET_OTH
+#include "at_commands_oth.h"
+#endif
+#include "at_byte_stuffing.h"
 
 #define HTTP_MAX_HEADERS 5
 #define HTTP_BODY_CAP    8192 /* response body cap for GET/POST, matches NET_SEND's payload cap */
@@ -144,10 +149,26 @@ static const char *op_cmd_name(http_op_t op)
     }
 }
 
+#if CONFIG_AT_MODEM_CMDSET_OTH
+/* OTH-AT result line: *OTH*HTTPCLOSE:OK|ERROR <code> for GET/POST,
+ * *OTH*HTTP_DOWNLOAD=OK|FAIL <file> for a download. */
+static void oth_http_result(const http_job_t *job, bool ok, int code)
+{
+    if (job->op == HTTP_OP_DOWNLOAD) {
+        at_event_post("HTTP_DOWNLOAD=%s %s", ok ? "OK" : "FAIL", job->filename);
+    } else if (ok) {
+        at_event_post("HTTPCLOSE:OK");
+    } else {
+        at_event_post("HTTPCLOSE:ERROR %d", code);
+    }
+}
+#endif
+
 static void http_worker(void *arg)
 {
     http_job_t *job = arg;
     const char *name = op_cmd_name(job->op);
+    (void)name;
 
     esp_http_client_config_t config = {
         .url = job->url,
@@ -157,7 +178,11 @@ static void http_worker(void *arg)
     };
     esp_http_client_handle_t client = esp_http_client_init(&config);
     if (!client) {
+#if CONFIG_AT_MODEM_CMDSET_OTH
+        oth_http_result(job, false, 7); /* 7: initialization error */
+#else
         at_event_post("%s:ERROR %d", name, AT_ERR_GENERIC);
+#endif
         goto cleanup_job;
     }
     apply_stored_headers(client);
@@ -176,7 +201,11 @@ static void http_worker(void *arg)
     }
 
     if (!ok) {
+#if CONFIG_AT_MODEM_CMDSET_OTH
+        oth_http_result(job, false, 2); /* 2: connection to the server failed */
+#else
         at_event_post("%s:ERROR %d", name, 4); /* Appendix C: ERR_CONNECTION_ESTABLISHMENT */
+#endif
         esp_http_client_cleanup(client);
         goto cleanup_job;
     }
@@ -260,6 +289,9 @@ static void http_worker(void *arg)
             memset(ram, 0, ram_len);
             free(ram);
         }
+#if CONFIG_AT_MODEM_CMDSET_OTH
+        oth_http_result(job, err == 0, err);
+#else
         if (err == -1) {
             at_event_post("NET_HTTPSTOP:DONE");
         } else if (err != 0) {
@@ -267,7 +299,37 @@ static void http_worker(void *arg)
         } else {
             at_event_post("%s:DONE", name);
         }
+#endif
     } else {
+#if CONFIG_AT_MODEM_CMDSET_OTH
+        /* OTH-AT: the body is streamed as it arrives, one *OTH*HTTPBODY:<len>
+         * <body> line per chunk (raw bytes, no size cap), then HTTPCLOSE. */
+        static char chunk[1024];
+        int err = 0;
+        for (;;) {
+            if (atomic_load(&s_abort_requested)) {
+                break;
+            }
+            int n = esp_http_client_read(client, chunk, sizeof(chunk));
+            if (n < 0) {
+                err = 4; /* connection closed by the remote host */
+                break;
+            }
+            if (n == 0) {
+                break;
+            }
+            if (at_event_enabled()) {
+                char head[32];
+                int hlen = snprintf(head, sizeof(head), AT_TAG "HTTPBODY:%d ", n);
+                at_uart_write_atomic2(head, (size_t)hlen, chunk, (size_t)n);
+                at_uart_write("\r\n", 2);
+            }
+        }
+        if (!err && !atomic_load(&s_abort_requested) && status != 200) {
+            err = 6; /* response code was not 200 OK */
+        }
+        oth_http_result(job, err == 0, err);
+#else
         uint8_t *buf = malloc(HTTP_BODY_CAP);
         size_t total = 0;
         if (buf) {
@@ -315,6 +377,7 @@ static void http_worker(void *arg)
             at_event_post("%s:ERROR %d", name, AT_ERR_GENERIC);
         }
         free(buf);
+#endif
     }
 
     esp_http_client_close(client);
@@ -619,3 +682,182 @@ void cmd_net_httpstop(const at_command_t *cmd)
     /* NET_HTTPSTOP:DONE follows asynchronously once http_worker() notices
      * the flag and unwinds. */
 }
+
+#if CONFIG_AT_MODEM_CMDSET_OTH
+/* ---- OTH-AT HTTP client (Essentials Ch.6.1) ------------------------------
+ * Same worker and settings as NET_HTTP*; the result lines are OTH-AT's
+ * (see oth_http_result()). GET/POST answer a bare ERROR as the guide shows. */
+
+/* AT*OTH*HTTPGET=<host>[:<port>]<uri> (http:// assumed, https:// allowed) */
+void cmd_oth_httpget(const at_command_t *cmd)
+{
+    if (cmd->argc < 1 || s_worker_task) {
+        at_reply_error(cmd->name, -1);
+        return;
+    }
+    http_job_t *job = calloc(1, sizeof(*job));
+    if (!job) {
+        at_reply_error(cmd->name, -1);
+        return;
+    }
+    job->op = HTTP_OP_GET;
+    normalize_url(cmd->argv[0], job->url, sizeof(job->url));
+    if (!start_job(job)) {
+        free(job);
+        at_reply_error(cmd->name, -1);
+        return;
+    }
+    at_reply_ok(cmd->name, NULL);
+}
+
+/* AT*OTH*HTTPPOST=<host>[:<port>]<uri> [length] [body] -- raw: the body
+ * may contain spaces. */
+void cmd_oth_httppost(const at_command_t *cmd)
+{
+    char *p = cmd->raw_params;
+    if (!p || s_worker_task) {
+        at_reply_error(cmd->name, -1);
+        return;
+    }
+    while (*p == ' ') {
+        p++;
+    }
+    char *url = p;
+    while (*p && *p != ' ') {
+        p++;
+    }
+    long body_len = 0;
+    char *body = NULL;
+    if (*p) {
+        *p++ = '\0';
+        while (*p == ' ') {
+            p++;
+        }
+        char *len_tok = p;
+        while (*p && *p != ' ') {
+            p++;
+        }
+        if (*p) {
+            *p++ = '\0';
+            body = p;
+        }
+        body_len = atol(len_tok);
+    }
+    if (!url[0] || body_len < 0 || (body_len > 0 && (!body || (long)strlen(body) < body_len))) {
+        at_reply_error(cmd->name, -1);
+        return;
+    }
+    http_job_t *job = calloc(1, sizeof(*job));
+    if (!job) {
+        at_reply_error(cmd->name, -1);
+        return;
+    }
+    job->op = HTTP_OP_POST;
+    normalize_url(url, job->url, sizeof(job->url));
+    if (body_len > 0) {
+        job->post_data = malloc((size_t)body_len);
+        if (!job->post_data) {
+            free(job);
+            at_reply_error(cmd->name, -1);
+            return;
+        }
+        memcpy(job->post_data, body, (size_t)body_len);
+        job->post_len = (size_t)body_len;
+    }
+    if (!start_job(job)) {
+        free(job->post_data);
+        free(job);
+        at_reply_error(cmd->name, -1);
+        return;
+    }
+    at_reply_ok(cmd->name, NULL);
+}
+
+/* AT*OTH*HTTPSET=0 <value> -- Content-Type 0: form, 1: octet-stream,
+ * 2: json. */
+void cmd_oth_httpset(const at_command_t *cmd)
+{
+    static const int to_m2m[] = { 0, 3, 1 };
+    int v = cmd->argc >= 2 ? atoi(cmd->argv[1]) : -1;
+    if (cmd->argc < 2 || strcmp(cmd->argv[0], "0") != 0 || v < 0 || v > 2) {
+        at_reply_error(cmd->name, -1);
+        return;
+    }
+    s_content_type = to_m2m[v];
+    at_reply_ok(cmd->name, NULL);
+}
+
+/* AT*OTH*HTTPHEADER=<length> <header> -- "Name:Value", byte-stuffed; up to
+ * HTTP_MAX_HEADERS (a repeated name replaces its value). 7: no room,
+ * 8: invalid. */
+void cmd_oth_httpheader(const at_command_t *cmd)
+{
+    char *p = cmd->raw_params;
+    while (p && *p == ' ') {
+        p++;
+    }
+    char *len_tok = p;
+    while (p && *p && *p != ' ') {
+        p++;
+    }
+    if (!p || !*p) {
+        at_reply_error(cmd->name, 8);
+        return;
+    }
+    *p++ = '\0';
+    char line[sizeof(s_headers[0].key) + sizeof(s_headers[0].value) + 2];
+    size_t n = at_byte_stuff_decode(p, strlen(p), (uint8_t *)line, sizeof(line) - 1);
+    line[n] = '\0';
+    char *colon = strchr(line, ':');
+    if ((long)n != atol(len_tok) || n == 0 || !colon || colon == line) {
+        at_reply_error(cmd->name, 8);
+        return;
+    }
+    *colon = '\0';
+    char *value = colon + 1;
+    while (*value == ' ') {
+        value++;
+    }
+    if (strlen(line) >= sizeof(s_headers[0].key) || strlen(value) >= sizeof(s_headers[0].value)) {
+        at_reply_error(cmd->name, 8);
+        return;
+    }
+    int slot = -1;
+    for (int i = 0; i < HTTP_MAX_HEADERS && slot < 0; i++) {
+        if (s_headers[i].used && strcasecmp(s_headers[i].key, line) == 0) {
+            slot = i;
+        }
+    }
+    for (int i = 0; i < HTTP_MAX_HEADERS && slot < 0; i++) {
+        if (!s_headers[i].used) {
+            slot = i;
+        }
+    }
+    if (slot < 0) {
+        at_reply_error(cmd->name, 7);
+        return;
+    }
+    strlcpy(s_headers[slot].key, line, sizeof(s_headers[slot].key));
+    strlcpy(s_headers[slot].value, value, sizeof(s_headers[slot].value));
+    s_headers[slot].used = true;
+    at_reply_ok(cmd->name, NULL);
+}
+
+/* AT*OTH*HTTPSTOP=<type> -- 0: HTTP, 1: HTTPS; ends the running session
+ * (its HTTPCLOSE follows). ERROR when there is none. */
+void cmd_oth_httpstop(const at_command_t *cmd)
+{
+    if (cmd->argc < 1 || (strcmp(cmd->argv[0], "0") != 0 && strcmp(cmd->argv[0], "1") != 0) || !s_worker_task) {
+        at_reply_error(cmd->name, -1);
+        return;
+    }
+    atomic_store(&s_abort_requested, true);
+    at_reply_ok(cmd->name, NULL);
+}
+
+/* AT*OTH*HTTP_DOWNLOAD=<url> <filename> -- result *OTH*HTTP_DOWNLOAD=OK|FAIL. */
+void cmd_oth_http_download(const at_command_t *cmd)
+{
+    cmd_net_httpdownload(cmd);
+}
+#endif

@@ -249,6 +249,19 @@ static void data_on_escape(void)
     }
 }
 
+bool oth_sock_data_connected(void)
+{
+    int sd = s_data_sd;
+    if (sd < 0) {
+        return false;
+    }
+    lock();
+    bool c = s_sock[sd].st == S_CONNECTED || s_sock[sd].cl[0].fd >= 0 ||
+             (s_sock[sd].type == OTH_SOCK_UDP && s_sock[sd].rport);
+    unlock();
+    return c;
+}
+
 void oth_sock_set_data_interval(int ms)
 {
     s_data_interval_ms = (ms >= 10 && ms <= 1000) ? ms : 200;

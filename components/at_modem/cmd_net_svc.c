@@ -21,6 +21,10 @@
 #include "at_response.h"
 #include "at_nvs_kv.h"
 #include "at_wifi.h"
+#include "at_cmdset.h"
+#if CONFIG_AT_MODEM_CMDSET_OTH
+#include "at_commands_oth.h"
+#endif
 
 /* --------------------------------------------------------------- NET_PING */
 
@@ -197,18 +201,10 @@ static void ensure_sntp_configured(void)
     s_sntp_ever_inited = true;
 }
 
-/* AT*M2M*NET_SNTP -- Execute only. */
-void cmd_net_sntp(const at_command_t *cmd)
+/* Formats the synced time, offset by NET_SNTPCONF's hours, as
+ * "Thu Oct 22 11:45:48 2015"; returns its length. */
+static int sntp_time_string(char *buf, size_t cap)
 {
-    (void)cmd;
-    ensure_sntp_configured();
-    at_reply_ok(cmd->name, NULL);
-
-    if (esp_netif_sntp_sync_wait(pdMS_TO_TICKS(10000)) != ESP_OK) {
-        at_reply_line("NET_SNTP:ERROR %d", AT_ERR_TIMEOUT);
-        return;
-    }
-
     time_t now;
     time(&now);
 
@@ -219,11 +215,79 @@ void cmd_net_sntp(const at_command_t *cmd)
 
     struct tm tm_info;
     gmtime_r(&now, &tm_info);
+    return (int)strftime(buf, cap, "%a %b %d %H:%M:%S %Y", &tm_info);
+}
+
+/* AT*M2M*NET_SNTP -- Execute only. */
+void cmd_net_sntp(const at_command_t *cmd)
+{
+    ensure_sntp_configured();
+    at_reply_ok(cmd->name, NULL);
+
+    if (esp_netif_sntp_sync_wait(pdMS_TO_TICKS(10000)) != ESP_OK) {
+        at_reply_line("NET_SNTP:ERROR %d", AT_ERR_TIMEOUT);
+        return;
+    }
     char buf[32];
-    int n = strftime(buf, sizeof(buf), "%a %b %d %H:%M:%S %Y", &tm_info);
+    int n = sntp_time_string(buf, sizeof(buf));
     at_reply_line("NET_SNTP:IND %d %s", n, buf);
     at_reply_line("NET_SNTP:DONE");
 }
+
+#if CONFIG_AT_MODEM_CMDSET_OTH
+/* AT*OTH*SNTP -- OK, then *OTH*SNTP_RESPONSE:<length> <time> (or TIMEOUT);
+ * ERROR 4 when not associated with an AP. */
+void cmd_oth_sntp(const at_command_t *cmd)
+{
+    if (!at_wifi_sta_is_connected()) {
+        at_reply_error(cmd->name, 4);
+        return;
+    }
+    ensure_sntp_configured();
+    at_reply_ok(cmd->name, NULL);
+    if (esp_netif_sntp_sync_wait(pdMS_TO_TICKS(10000)) != ESP_OK) {
+        at_reply_line("SNTP_RESPONSE:TIMEOUT");
+        return;
+    }
+    char buf[32];
+    int n = sntp_time_string(buf, sizeof(buf));
+    at_reply_line("SNTP_RESPONSE:%d %s", n, buf);
+}
+
+/* AT*OTH*SNTP_GET=<index> / SNTP_SET=<index> <value> -- 0: NTP server
+ * (max. 32 characters), 1: GMT offset in hours. Same NV items as
+ * NET_SNTPCONF. */
+void cmd_oth_sntp_get(const at_command_t *cmd)
+{
+    char v[64] = "";
+    size_t len = sizeof(v);
+    if (cmd->argc >= 1 && strcmp(cmd->argv[0], "0") == 0) {
+        m2m_nvs_get_str("sntp_server", v, &len);
+        at_reply_ok(cmd->name, "%s", v[0] ? v : "pool.ntp.org");
+    } else if (cmd->argc >= 1 && strcmp(cmd->argv[0], "1") == 0) {
+        m2m_nvs_get_str("sntp_offset", v, &len);
+        at_reply_ok(cmd->name, "%s", v[0] ? v : "0");
+    } else {
+        at_reply_error(cmd->name, -1);
+    }
+}
+
+void cmd_oth_sntp_set(const at_command_t *cmd)
+{
+    if (cmd->argc >= 2 && strcmp(cmd->argv[0], "0") == 0 && strlen(cmd->argv[1]) <= 32) {
+        m2m_nvs_set_str("sntp_server", cmd->argv[1]);
+    } else if (cmd->argc >= 2 && strcmp(cmd->argv[0], "1") == 0 && atoi(cmd->argv[1]) >= -12 &&
+               atoi(cmd->argv[1]) <= 14) {
+        char v[8];
+        snprintf(v, sizeof(v), "%d", atoi(cmd->argv[1]));
+        m2m_nvs_set_str("sntp_offset", v);
+    } else {
+        at_reply_error(cmd->name, 8);
+        return;
+    }
+    at_reply_ok(cmd->name, NULL);
+}
+#endif
 
 /* AT*M2M*NET_SNTPCONF -- doc's own param table is internally inconsistent
  * (labels the Set command's 2nd argument "offset" even for mode=0, though

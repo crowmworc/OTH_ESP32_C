@@ -11,6 +11,10 @@ extern "C" {
  */
 void at_httpd_init(void);
 
+/** True while the configuration web server is running. */
+#include <stdbool.h>
+bool at_httpd_running(void);
+
 #ifdef __cplusplus
 }
 #endif

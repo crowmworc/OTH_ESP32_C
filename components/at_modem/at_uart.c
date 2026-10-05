@@ -87,6 +87,13 @@ void at_uart_set_passthrough(at_uart_passthrough_sink_t sink, void (*on_escape)(
  * buffered confirms the escape, while any other byte (or a 4th '+')
  * flushes the buffered '+'s as ordinary data and resets. */
 static int s_escape_guard_ms = 20;
+static atomic_bool s_escape_disabled = false; /* binary transfer: no "+++" detection */
+
+void at_uart_set_raw_sink(at_uart_passthrough_sink_t sink)
+{
+    atomic_store(&s_escape_disabled, sink != NULL);
+    at_uart_set_passthrough(sink, NULL);
+}
 
 void at_uart_set_escape_guard_ms(int ms)
 {
@@ -101,6 +108,12 @@ static void at_uart_passthrough_loop(void)
 
     while (atomic_load(&s_passthrough_active)) {
         int n = at_transport_read_byte(&byte, pdMS_TO_TICKS(20));
+        if (atomic_load(&s_escape_disabled)) {
+            if (n > 0) {
+                s_passthrough_sink(&byte, 1);
+            }
+            continue;
+        }
         if (n <= 0 && plus_run == 3 && s_escape_guard_ms > 20) {
             /* OTH-AT: "+++" must be followed by a longer silence */
             n = at_transport_read_byte(&byte, pdMS_TO_TICKS(s_escape_guard_ms - 20));

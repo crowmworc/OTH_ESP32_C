@@ -59,6 +59,8 @@ int oth_sock_data_open(int type, const char *rip, uint16_t rport, uint16_t lport
 /* After DATA_SOCKET's OK: *OTH*DATAMODE, then transparent mode until
  * "+++" (followed by 500 ms of silence) or the peer is lost. */
 void oth_sock_data_start(void);
+/* MIB 104: data mode is on and has its peer. */
+bool oth_sock_data_connected(void);
 void oth_sock_set_data_interval(int ms);
 int oth_sock_data_interval(void);
 

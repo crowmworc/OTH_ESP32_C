@@ -133,11 +133,14 @@ static const at_dispatch_entry_t s_table[] = {
     { "RESET",        cmd_oth_reset,        false },
     { "FACRESET",     cmd_oth_facreset,     false },
     { "EVTDEL",       cmd_oth_evtdel,       false },
+    { "FWUPGRADE",    cmd_oth_fwupgrade,    false },
     { "HWPS",         cmd_oth_hwps,         false },
     { "ANTVER",       cmd_oth_antver,       false },
     { "SETANT",       cmd_oth_setant,       false },
     { "TXGAIN",       cmd_oth_txgain,       false },
     { "COUNTRY",      cmd_oth_country,      false },
+    { "MIB",          cmd_oth_mib,          false },
+    { "SETMIB",       cmd_oth_setmib,       false },
     /* Ch.3 Wi-Fi */
     { "MODE",         cmd_oth_mode,         false },
     { "SCAN",         cmd_oth_scan,         false },
@@ -185,6 +188,23 @@ static const at_dispatch_entry_t s_table[] = {
     { "SSL_SVR_START",cmd_oth_ssl_svr_start,false },
     { "SSL_SVR_SEND", cmd_oth_ssl_svr_send, true },
     { "SSL_SVR_CLOSE",cmd_oth_ssl_svr_close,false },
+    /* Ch.6 Network Services */
+    { "HTTPGET",      cmd_oth_httpget,      false },
+    { "HTTPPOST",     cmd_oth_httppost,     true }, /* body may contain spaces */
+    { "HTTPSET",      cmd_oth_httpset,      false },
+    { "HTTPHEADER",   cmd_oth_httpheader,   true },
+    { "HTTPSTOP",     cmd_oth_httpstop,     false },
+    { "HTTP_DOWNLOAD",cmd_oth_http_download,true }, /* cmd_net_httpdownload() parses raw */
+    { "HTTPD_START",  cmd_oth_httpd_start,  false },
+    { "HTTPD_STOP",   cmd_oth_httpd_stop,   false },
+    { "HTTPD_IDPW",   cmd_oth_httpd_idpw,   false },
+    { "SNTP",         cmd_oth_sntp,         false },
+    { "SNTP_GET",     cmd_oth_sntp_get,     false },
+    { "SNTP_SET",     cmd_oth_sntp_set,     false },
+    { "FTPC_SET",     cmd_oth_ftpc_set,     false },
+    { "FTPC_GET",     cmd_oth_ftpc_get,     false },
+    { "OTA_VERCHECK", cmd_oth_ota_vercheck, false },
+    { "OTA_REQUEST",  cmd_oth_ota_request,  false },
 };
 #endif
 

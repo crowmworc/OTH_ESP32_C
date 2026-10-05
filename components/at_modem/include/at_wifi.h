@@ -67,6 +67,11 @@ int  at_wifi_eapcert_apply(int argc, char *argv[]);
 #if CONFIG_AT_MODEM_CMDSET_OTH
 bool at_wifi_take_boot_autoconnect(void);
 int  at_wifi_oth_eapset(int argc, char *argv[]);
+typedef struct {
+    const char *method, *identity, *ca_file, *cert_file, *key_file, *pac_file;
+    bool has_password;
+} at_wifi_eap_info_t;
+void at_wifi_eap_info(at_wifi_eap_info_t *out);
 /* Implemented in cmd_oth_wifi.c, called from cmd_wifi.c's event handler. */
 void at_oth_wifi_on_start(wifi_interface_t ifx);
 bool at_oth_wifi_autoconnect_enabled(void);

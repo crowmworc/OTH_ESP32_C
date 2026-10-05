@@ -54,6 +54,9 @@ void at_uart_set_passthrough(at_uart_passthrough_sink_t sink, void (*on_escape)(
 /* Silence (ms) that must follow "+++" to leave passthrough: 20 by default
  * (M2M-AT), 500 for OTH-AT. */
 void at_uart_set_escape_guard_ms(int ms);
+/* Every received byte goes to `sink` (no "+++" escape) until called with
+ * NULL -- for binary transfers such as OTH-AT FWUPGRADE (XMODEM). */
+void at_uart_set_raw_sink(at_uart_passthrough_sink_t sink);
 
 /**
  * Blocking read of exactly `len` raw bytes from the host, bypassing the

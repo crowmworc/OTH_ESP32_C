@@ -57,6 +57,7 @@
 #include "at_response.h"
 #include "at_event.h"
 #include "m2m_version.h"
+#include "at_cmdset.h"
 
 static TaskHandle_t s_ota_task;
 
@@ -124,6 +125,13 @@ static int parse_version_code(const char *ver)
     return mm * 100 + nn;
 }
 
+/* A failed check: OTH-AT reports the lookup error as server version 0. */
+#if CONFIG_AT_MODEM_CMDSET_OTH
+#define OTA_CHECK_FAILED()     at_event_post("OTA_VERSION:%d 0", parse_version_code(esp_app_get_description()->version))
+#else
+#define OTA_CHECK_FAILED() at_event_post("OTA_CHECK:ERROR %d", 1) /* doc: 1-initialization error */
+#endif
+
 static void ota_check_worker(void *arg)
 {
     char *url = arg;
@@ -138,7 +146,7 @@ static void ota_check_worker(void *arg)
     esp_https_ota_handle_t handle;
     esp_err_t err = esp_https_ota_begin(&ota_config, &handle);
     if (err != ESP_OK) {
-        at_event_post("OTA_CHECK:ERROR %d", 1); /* doc: 1-initialization error */
+        OTA_CHECK_FAILED();
         goto done;
     }
 
@@ -146,7 +154,7 @@ static void ota_check_worker(void *arg)
     err = esp_https_ota_get_img_desc(handle, &server_desc);
     if (err != ESP_OK) {
         esp_https_ota_abort(handle);
-        at_event_post("OTA_CHECK:ERROR %d", 1);
+        OTA_CHECK_FAILED();
         goto done;
     }
 
@@ -165,7 +173,12 @@ static void ota_check_worker(void *arg)
     s_checked_is_newer = is_newer;
     s_checked_image_id_ok = image_id_ok;
 
+#if CONFIG_AT_MODEM_CMDSET_OTH
+    /* OTH-AT: *OTH*OTA_VERSION:<local> <server>, as integers (MM*100+NN) */
+    at_event_post("OTA_VERSION:%d %d", local_code, server_code > 0 ? server_code : 0);
+#else
     at_event_post("OTA_CHECK:DONE %s %s", local_desc->version, server_desc.version);
+#endif
 
 done:
     free(url);
@@ -212,11 +225,19 @@ static void ota_update_worker(void *arg)
     };
     esp_https_ota_config_t ota_config = {.http_config = &http_config};
 
+#if CONFIG_AT_MODEM_CMDSET_OTH
+    if (esp_https_ota(&ota_config) == ESP_OK) {
+        at_event_post("OTA_UPDATE:OK");
+    } else {
+        at_event_post("OTA_UPDATE:ERROR %d", 9); /* OTH: 9-OTA server error */
+    }
+#else
     if (esp_https_ota(&ota_config) == ESP_OK) {
         at_event_post("OTA_UPDATE:DONE");
     } else {
         at_event_post("OTA_UPDATE:ERROR %d", 1); /* doc: 1-initialization error (closest generic fit) */
     }
+#endif
 
     free(url);
     s_ota_task = NULL;
@@ -247,7 +268,11 @@ void cmd_ota_update(const at_command_t *cmd)
         return;
     }
     if (!s_checked_image_id_ok) {
+#if CONFIG_AT_MODEM_CMDSET_OTH
+        at_reply_error(cmd->name, 1); /* OTH has no image-ID code: 1, the nearest (signature) */
+#else
         at_reply_error(cmd->name, 5); /* doc: 5-downloaded image ID doesn't match the installed image */
+#endif
         return;
     }
 

@@ -935,6 +935,11 @@ static bool load_cert_file(const char *filename, char *out, size_t out_cap, size
 #define HTTPD_ALLOW_HTTPS 1
 #endif
 
+bool at_httpd_running(void)
+{
+    return s_httpd != NULL;
+}
+
 void at_httpd_init(void)
 {
     web_auth_init();

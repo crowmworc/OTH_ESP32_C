@@ -839,6 +839,8 @@ static char s_eap_password[129] = "";
 static char s_eap_cert_file[17] = "";  /* WF_EAPCERT type 3, paired with 4 */
 static char s_eap_key_file[17] = "";   /* WF_EAPCERT type 4 */
 static char s_eap_key_password[129] = ""; /* OTH-AT EAPSET field 3; empty: use s_eap_password */
+static char s_eap_ca_file[17] = "";    /* WF_EAPCERT type 2 / 5, for OTH-AT MIB 12/24 */
+static char s_eap_pac_file[17] = "";
 
 /* out_len (optional) receives the raw file byte count (excludes the NUL
  * this appends at out[n]) -- callers passing PEM text to mbedtls-backed
@@ -1160,6 +1162,7 @@ int at_wifi_eapcert_apply(int argc, char *argv[])
             if (!load_and_set_ca_cert(value)) {
                 return AT_ERR_GENERIC;
             }
+            strlcpy(s_eap_ca_file, value, sizeof(s_eap_ca_file));
             break;
         }
         case 3:
@@ -1187,6 +1190,7 @@ int at_wifi_eapcert_apply(int argc, char *argv[])
                 esp_eap_client_set_pac_file((const unsigned char *)pac_pem, (int)pac_pem_len) != ESP_OK) {
                 return AT_ERR_GENERIC;
             }
+            strlcpy(s_eap_pac_file, value, sizeof(s_eap_pac_file));
             break;
         }
         default:
@@ -1566,5 +1570,17 @@ int at_wifi_oth_eapset(int argc, char *argv[])
         }
     }
     return eap_enable_with_server_validation() == ESP_OK ? 0 : 5;
+}
+/* Staged EAP settings for OTH-AT MIB (read-only view, password not
+ * exposed -- only whether one is set). */
+void at_wifi_eap_info(at_wifi_eap_info_t *out)
+{
+    out->method = s_eap_method;
+    out->identity = s_eap_id;
+    out->has_password = s_eap_password[0] != '\0';
+    out->ca_file = s_eap_ca_file;
+    out->cert_file = s_eap_cert_file;
+    out->key_file = s_eap_key_file;
+    out->pac_file = s_eap_pac_file;
 }
 #endif

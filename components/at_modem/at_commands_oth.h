@@ -32,6 +32,8 @@ void cmd_oth_antver(const at_command_t *cmd);
 void cmd_oth_setant(const at_command_t *cmd);
 void cmd_oth_txgain(const at_command_t *cmd);
 void cmd_oth_country(const at_command_t *cmd);
+/* cmd_oth_fwup.c -- FWUPGRADE (XMODEM) */
+void cmd_oth_fwupgrade(const at_command_t *cmd);
 
 /* cmd_oth_wifi.c -- Ch.3 Wi-Fi AT Commands */
 void cmd_oth_mode(const at_command_t *cmd);
@@ -81,6 +83,29 @@ void cmd_oth_ssl_svr_start(const at_command_t *cmd);
 void cmd_oth_ssl_svr_send(const at_command_t *cmd);
 void cmd_oth_ssl_svr_close(const at_command_t *cmd);
 void at_oth_net_init(void);
+
+/* Ch.6 Network Services -- cmd_http.c (HTTP client), cmd_net_svc.c (SNTP),
+ * cmd_oth_svc.c (web server, FTP credentials, OTA) */
+void cmd_oth_httpget(const at_command_t *cmd);
+void cmd_oth_httppost(const at_command_t *cmd);
+void cmd_oth_httpset(const at_command_t *cmd);
+void cmd_oth_httpheader(const at_command_t *cmd);
+void cmd_oth_httpstop(const at_command_t *cmd);
+void cmd_oth_http_download(const at_command_t *cmd);
+void cmd_oth_sntp(const at_command_t *cmd);
+void cmd_oth_sntp_get(const at_command_t *cmd);
+void cmd_oth_sntp_set(const at_command_t *cmd);
+void cmd_oth_httpd_start(const at_command_t *cmd);
+void cmd_oth_httpd_stop(const at_command_t *cmd);
+void cmd_oth_httpd_idpw(const at_command_t *cmd);
+void cmd_oth_ftpc_set(const at_command_t *cmd);
+void cmd_oth_ftpc_get(const at_command_t *cmd);
+void cmd_oth_ota_vercheck(const at_command_t *cmd);
+void cmd_oth_ota_request(const at_command_t *cmd);
+/* Ch.2 / Appendix B -- cmd_oth_svc.c */
+void cmd_oth_mib(const at_command_t *cmd);
+void cmd_oth_setmib(const at_command_t *cmd);
+void at_oth_svc_init(void);
 
 /* Boot-time setup run from at_modem_init() (EVTDEL, SoftAP addressing). */
 void at_oth_init(void);

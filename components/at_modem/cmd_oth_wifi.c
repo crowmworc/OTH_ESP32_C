@@ -796,4 +796,5 @@ void at_oth_init(void)
     m2m_nvs_get_u16("evtdel", &evtdel);
     at_event_set_enabled(evtdel == 0);
     ap_addr_apply();
+    at_oth_svc_init();
 }
