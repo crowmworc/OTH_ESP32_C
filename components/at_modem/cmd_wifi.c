@@ -404,6 +404,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, voi
          * the Ch.7.1 summary-table name per decision 2026-08-29.) */
 #if CONFIG_AT_MODEM_CMDSET_OTH
         at_oth_mqtt_on_ip();
+        at_oth_aws_on_ip();
         at_event_post("IPALLOCATED:" IPSTR " " IPSTR " " IPSTR " " IPSTR,
 #else
         at_event_post("NET_IP:IND " IPSTR " " IPSTR " " IPSTR " " IPSTR,

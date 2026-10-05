@@ -212,6 +212,9 @@ static const at_dispatch_entry_t s_table[] = {
     { "MQTT_CONNECT", cmd_oth_mqtt_connect, false },
     { "MQTT_PUB",     cmd_oth_mqtt_pub,     true }, /* message may contain spaces */
     { "MQTT_SUB",     cmd_oth_mqtt_sub,     false },
+    /* AWS IoT volume */
+    { "AWS_GET",      cmd_oth_aws_get,      false },
+    { "AWS_SEND",     cmd_oth_aws_send,     true }, /* JSON may contain spaces */
 };
 #endif
 

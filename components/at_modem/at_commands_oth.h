@@ -110,6 +110,10 @@ void cmd_oth_mqtt_connect(const at_command_t *cmd);
 void cmd_oth_mqtt_pub(const at_command_t *cmd);
 void cmd_oth_mqtt_sub(const at_command_t *cmd);
 void at_oth_mqtt_on_ip(void);
+/* AWS IoT volume -- cmd_oth_aws.c */
+void cmd_oth_aws_get(const at_command_t *cmd);
+void cmd_oth_aws_send(const at_command_t *cmd);
+void at_oth_aws_on_ip(void);
 /* Ch.2 / Appendix B -- cmd_oth_svc.c */
 void cmd_oth_mib(const at_command_t *cmd);
 void cmd_oth_setmib(const at_command_t *cmd);
