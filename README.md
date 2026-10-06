@@ -13,7 +13,7 @@ the configuration web UI and the EN 18031-1 security features are shared.
 This repository's `sdkconfig` selects OTH. The per-command status, the
 decisions taken where the OTH-AT guides are silent, and the open items are
 in `doc/OTH-AT_Command_Status.xlsx`; the OTH-AT phases are at the end of
-*Progress* below (Phase 16-21).
+*Progress* below (Phase 16-22).
 
 
 AT-command modem (`components/at_modem/`) implementing the protocol
@@ -676,7 +676,26 @@ for the full command-by-command mapping and rationale.
       "authenticate", topics `<thing>/up|down/<apiNo>`. Verified on the
       AWS test account (provisioning, CONNECT, SEND, reboot reconnect);
       AWS_RECV not yet verified. CoAP volume not implemented (decision
-      2026-10-05).
+      2026-10-05). Replaced by Phase 22.
+- [x] **Phase 22** — OTH-AT AWS volume rebuilt as an OTH Platform client
+      (2026-10-06; the OTH build serves only this platform). SoftAP pairing
+      server `oth_pairing.c` (TCP 47000, "GEN2" frames, DP0100-0400,
+      optional AES-128 session) stores root CA / auth server / endpoint /
+      port / region and joins the home AP, then closes the SoftAP and keeps
+      the station profile. `cmd_oth_aws.c`: token + device certificate from
+      the authentication server (`/register/token|auth`), root CA download,
+      MQTT topics `<root>/{Conn|Event|Control|Lwt}/<MIB19>/<MIB18>/<clientId>`
+      with the header/values envelope, A100 on every connection, A102 as
+      LWT; A502/A511/A521/A531 handled in the module, A001 (renewal) and
+      A101 (deregistration) acted on and passed to the host; 60 s retry.
+      `oth_fota.c`: module FOTA (plain or AES-256-CBC, SHA-256, image ID
+      check) and MCU firmware staged in the inactive OTA slot and relayed
+      with MOTA_*. New commands AWS_SET, MCU_READY, MOTA_START/READY/DATA/
+      DATA_END; Kconfig `AT_MODEM_OTH_TOPIC_ROOT`, `AT_MODEM_OTH_PAIRING_PORT`.
+      Board-verified: AWS_GET/SET, MCU_READY, MIB 18/19, MOTA relay (600-byte
+      image, CRC matches), authentication token stage. Not yet verified:
+      pairing with the app, certificate/MQTT stages and inbound handling
+      against the real servers.
 
 Explicitly out of scope (no corresponding chapter in the M2M-AT Command Set
 doc, or excluded by decision): Wi-Fi Direct/P2P, CoAP, oneM2M, UPnP, DDNS,
@@ -703,7 +722,7 @@ compile-time identity constants -- implemented here:
   (== `PROJECT_VER`, top-level `CMakeLists.txt` — now `"01.00"`, the first
   release under this scheme per the guide's own restart-numbering advice),
   `M2M_FW_CUSTOMER` (e.g. `"AC0"`), and `M2M_FW_IMAGE_ID` (e.g.
-  `"EC3-MA0-N04-40M_MM_AC0"`, embedded via the ESP-IDF-reserved
+  `"EC3-MA0-N04-40M_MM_AC0"`, `_OT_` in the OTH-AT build), embedded via the ESP-IDF-reserved
   `.rodata_custom_desc` section, right after `esp_app_desc_t`).
 - **`AT*M2M*SYS_VER`** now reports a third field, `<customer_code>` (doc
   v2.0/Rev 1.4): `*M2M*SYS_VER:OK 01.00 2026-09-26-13:00:58 AC0`.

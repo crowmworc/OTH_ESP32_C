@@ -29,7 +29,8 @@
 #define M2M_FW_HW \
     CONFIG_M2M_CHIP_CODE "-" CONFIG_M2M_BOARD_CODE "-" CONFIG_M2M_FLASH_CODE "-" CONFIG_M2M_CLK_CODE
 
-/* <HW>_<CMD>_<CUSTOMER><REL>, e.g. "EC3-MA0-N04-40M_MM_AC0" -- never shown
+/* <HW>_<CMD>_<CUSTOMER><REL>, e.g. "EC3-MA0-N04-40M_MM_AC0"
+ * (OTH-AT build: "..._OT_AC0") -- never shown
  * to the host; AT*M2M*OTA_UPDATE compares a downloaded image's own copy of
  * this (embedded the same way, see m2m_image_id.c) against this running
  * image's copy before installing it (doc reason 5). */

@@ -141,15 +141,15 @@ menu "M2M Release Naming (M2M_SW Release Naming Guide v2.0)"
 
     config M2M_CMD_CODE
         string
+        default "OT" if AT_MODEM_CMDSET_OTH
         default "MM"
         help
-            AT command-set code (명령체계코드 sheet). Fixed at "MM" (this
-            project's own M2M-AT dialect) -- IC (ICT-AT compatible) and ES
-            (ESP-AT compatible) are registered as reserved but have no
-            implementation anywhere in this tree to switch to yet. If one
-            is ever added as an alternate at_dispatch.c-equivalent table,
-            this becomes a real choice and the build picks which dispatch
-            table's sources get compiled in.
+            AT command-set code (명령체계코드 sheet), following the AT
+            command set chosen under AT Modem -> AT command set: "MM" for
+            M2M-AT, "OT" for OTH-AT. It is part of the firmware image ID, so
+            OTA_REQUEST / cloud FOTA refuse an image of the other command
+            set. ES (ESP-AT compatible) is registered as reserved but has no
+            implementation in this tree.
 
     config M2M_APP_CODE
         string

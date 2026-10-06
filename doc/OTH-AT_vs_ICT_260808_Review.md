@@ -74,7 +74,14 @@ OTH AWS 문서의 인증서버 URL·토큰·RootCA URL 1/2·Region·MCU 버전/�
 - FWUPGRADE/DATA_SOCKET/APLEASEIP 미구현, MIB/COUNTRY/TXGAIN/TCPKEEP 등 없음.
 - 설정 RAM 전용, HTTPD_IDPW 평문·admin/admin, 파라미터 최대 8개.
 
-## 6. 결정 대기
+## 6. 결정 (2026-10-06)
+
+OTH 빌드는 OTH Platform 전용 → 6.1을 old 방식으로 재구현(README Phase 22): 페어링 서버,
+인증서버/RootCA, 토픽·메시지 형식, A5XX·A001·A101 처리, AWS_SET, MCU_READY, SETMIB 18/19,
+MOTA_*. 6.2의 나머지(OTA_FILENAME, MQTT_DISCONNECT, UARTPROTO, UPnP/DDNS/LPD)와 4장
+권장안은 범위 밖으로 두었다. 코드 주석에는 "OTH Platform"이라는 명칭만 쓴다.
+
+## 6-old. 결정 대기 (2026-10-05 기록)
 
 1. OTH AWS를 old(위닉스) 방식으로 재구현할지 — 하려면 위 인용 문서/원본 소스 위치,
    없으면 old 코드 기준으로 진행. 포함 범위: 페어링 서버, MCU_READY, AWS_SET,

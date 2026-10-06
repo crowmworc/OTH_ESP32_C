@@ -3,6 +3,8 @@
  * CONFIG_AT_MODEM_CMDSET_OTH), included by at_dispatch.c. Chapter numbers
  * refer to "OTH-AT Compatible Command Set - Essentials" unless noted. */
 
+#include <stdint.h>
+
 #include "at_parser.h"
 
 #ifdef __cplusplus
@@ -110,10 +112,23 @@ void cmd_oth_mqtt_connect(const at_command_t *cmd);
 void cmd_oth_mqtt_pub(const at_command_t *cmd);
 void cmd_oth_mqtt_sub(const at_command_t *cmd);
 void at_oth_mqtt_on_ip(void);
-/* AWS IoT volume -- cmd_oth_aws.c */
+/* AWS IoT volume -- cmd_oth_aws.c (OTH Platform client), oth_fota.c (MCU
+ * firmware relay); see oth_platform.h */
 void cmd_oth_aws_get(const at_command_t *cmd);
+void cmd_oth_aws_set(const at_command_t *cmd);
 void cmd_oth_aws_send(const at_command_t *cmd);
+void cmd_oth_mcu_ready(const at_command_t *cmd);
+void cmd_oth_mota_start(const at_command_t *cmd);
+void cmd_oth_mota_ready(const at_command_t *cmd);
+void cmd_oth_mota_data(const at_command_t *cmd);
+void cmd_oth_mota_data_end(const at_command_t *cmd);
 void at_oth_aws_on_ip(void);
+/* cmd_net_svc.c: starts SNTP if nothing started it yet and waits up to
+ * wait_ms for a synced clock; true when the clock is set. */
+bool at_sntp_ensure_synced(uint32_t wait_ms);
+/* cmd_oth_wifi.c: keep the joined station profile for boot and lost-link
+ * rejoins (AUCONMODE 1), as after pairing. */
+void at_oth_wifi_keep_station(void);
 /* Ch.2 / Appendix B -- cmd_oth_svc.c */
 void cmd_oth_mib(const at_command_t *cmd);
 void cmd_oth_setmib(const at_command_t *cmd);

@@ -20,6 +20,7 @@
 #include "at_event.h"
 #include "at_nvs_kv.h"
 #include "at_wifi.h"
+#include "oth_platform.h"
 
 /* AT*OTH*SWVER=? -- "<version>", Major.Minor (PROJECT_VER, e.g. 01.00). */
 void cmd_oth_swver(const at_command_t *cmd)
@@ -63,6 +64,7 @@ void cmd_oth_facreset(const at_command_t *cmd)
         at_reply_error(cmd->name, OTH_ERR_GENERAL_PARAM);
         return;
     }
+    oth_aws_forget(); /* AWS certificate / root CA files live outside NV memory */
     at_sys_nv_erase();
     if (cmd->argv[0][0] == '1') {
         char ssid[16];

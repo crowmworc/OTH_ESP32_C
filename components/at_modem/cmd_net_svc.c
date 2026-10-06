@@ -254,6 +254,18 @@ void cmd_oth_sntp(const at_command_t *cmd)
     at_reply_line("SNTP_RESPONSE:%d %s", n, buf);
 }
 
+bool at_sntp_ensure_synced(uint32_t wait_ms)
+{
+    time_t now = time(NULL);
+    if (now > 1600000000) { /* already set (2020 or later) */
+        return true;
+    }
+    if (!s_sntp_ever_inited) {
+        ensure_sntp_configured();
+    }
+    return wait_ms && esp_netif_sntp_sync_wait(pdMS_TO_TICKS(wait_ms)) == ESP_OK;
+}
+
 /* AT*OTH*SNTP_GET=<index> / SNTP_SET=<index> <value> -- 0: NTP server
  * (max. 32 characters), 1: GMT offset in hours. Same NV items as
  * NET_SNTPCONF. */

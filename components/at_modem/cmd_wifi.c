@@ -34,6 +34,7 @@
 #include "at_cmdset.h"
 #if CONFIG_AT_MODEM_CMDSET_OTH
 #include "at_commands_oth.h"
+#include "oth_platform.h"
 #endif
 
 static const char *TAG = "at_wifi";
@@ -405,6 +406,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, voi
 #if CONFIG_AT_MODEM_CMDSET_OTH
         at_oth_mqtt_on_ip();
         at_oth_aws_on_ip();
+        oth_pairing_on_ip();
         at_event_post("IPALLOCATED:" IPSTR " " IPSTR " " IPSTR " " IPSTR,
 #else
         at_event_post("NET_IP:IND " IPSTR " " IPSTR " " IPSTR " " IPSTR,

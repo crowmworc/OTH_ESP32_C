@@ -27,6 +27,7 @@
 #include "at_event.h"
 #include "at_nvs_kv.h"
 #include "at_wifi.h"
+#include "oth_platform.h"
 
 #define APMODE_TARGET_AP 1 /* cmd_wifi.c's apm_target value for a SoftAP profile */
 
@@ -59,6 +60,14 @@ bool at_oth_wifi_autoconnect_enabled(void)
 {
     auc_load();
     return s_auc_mode == 1;
+}
+
+void at_oth_wifi_keep_station(void)
+{
+    auc_load();
+    s_auc_mode = 1;
+    m2m_nvs_set_u16("auc_mode", 1);
+    at_wifi_persist_apmode_sta();
 }
 
 /* *OTH*ASSOCIATED:<result> -- 1: failure, 2: AP not found, 3: timeout,
@@ -797,4 +806,5 @@ void at_oth_init(void)
     at_event_set_enabled(evtdel == 0);
     ap_addr_apply();
     at_oth_svc_init();
+    oth_pairing_init();
 }

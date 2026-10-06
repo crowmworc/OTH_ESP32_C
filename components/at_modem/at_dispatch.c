@@ -215,6 +215,14 @@ static const at_dispatch_entry_t s_table[] = {
     /* AWS IoT volume */
     { "AWS_GET",      cmd_oth_aws_get,      false },
     { "AWS_SEND",     cmd_oth_aws_send,     true }, /* JSON may contain spaces */
+    /* OTH Platform additions: development setting, host version, MCU
+     * firmware relay */
+    { "AWS_SET",      cmd_oth_aws_set,      false },
+    { "MCU_READY",    cmd_oth_mcu_ready,    false },
+    { "MOTA_START",   cmd_oth_mota_start,   false },
+    { "MOTA_READY",   cmd_oth_mota_ready,   false },
+    { "MOTA_DATA",    cmd_oth_mota_data,    false },
+    { "MOTA_DATA_END", cmd_oth_mota_data_end, false },
 };
 #endif
 

@@ -96,6 +96,26 @@ menu "AT Modem (M2M-AT / OTH-AT Command Set)"
             build, since the configuration web server and NET_SERVER
             sockets are otherwise reachable by anyone in radio range.
 
+    menu "OTH Platform (OTH-AT AWS IoT)"
+        depends on AT_MODEM_CMDSET_OTH
+
+        config AT_MODEM_OTH_TOPIC_ROOT
+            string "MQTT topic root"
+            default "OTHERS"
+            help
+                First segment of the OTH Platform MQTT topics:
+                <root>/{Conn|Event|Control|Lwt}/<group>/<model>/<clientId>.
+                Must match the cloud service the module connects to.
+
+        config AT_MODEM_OTH_PAIRING_PORT
+            int "SoftAP pairing server TCP port"
+            range 1 65535
+            default 47000
+            help
+                Port the smartphone app connects to on the module's SoftAP
+                to deliver the server information and the home AP.
+    endmenu
+
     config AT_MODEM_EAP_ALLOW_NO_CA
         bool "Allow WPA2/WPA3-Enterprise without verifying the RADIUS server"
         default n
