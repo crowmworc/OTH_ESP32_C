@@ -692,10 +692,15 @@ for the full command-by-command mapping and rationale.
       check) and MCU firmware staged in the inactive OTA slot and relayed
       with MOTA_*. New commands AWS_SET, MCU_READY, MOTA_START/READY/DATA/
       DATA_END; Kconfig `AT_MODEM_OTH_TOPIC_ROOT`, `AT_MODEM_OTH_PAIRING_PORT`.
-      Board-verified: AWS_GET/SET, MCU_READY, MIB 18/19, MOTA relay (600-byte
-      image, CRC matches), authentication token stage. Not yet verified:
-      pairing with the app, certificate/MQTT stages and inbound handling
-      against the real servers.
+      Board-verified 2026-10-06 against a LAN mock authentication server and
+      broker.emqx.io: token/certificate/key, stored-credential reconnect
+      without the server, topics + envelope, A100 (versionChangeW/M), A102
+      LWT, AWS_SEND apiGroup, AWS_RECV (attributes / flat values), foreign
+      deviceId dropped, A502->A500, A511 encrypted FOTA (wrong hash refused,
+      right hash installed + rebooted), A521 + MOTA relay (CRC matches),
+      A001 renewal, DISCONNECT on link loss + rejoin, boot auto-connect.
+      Not yet verified: pairing with the app, A101 (erases NV memory), the
+      real servers.
 
 Explicitly out of scope (no corresponding chapter in the M2M-AT Command Set
 doc, or excluded by decision): Wi-Fi Direct/P2P, CoAP, oneM2M, UPnP, DDNS,
