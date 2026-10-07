@@ -39,6 +39,9 @@ static inline int at_transport_read_byte(uint8_t *byte, TickType_t timeout)
 }
 static inline void at_transport_write(const char *data, size_t len)
 {
+    if (len == 0) {
+        return; /* the driver rejects a zero-length write ("invalid buffer or size") */
+    }
     usb_serial_jtag_write_bytes(data, len, portMAX_DELAY);
 }
 #else
@@ -48,6 +51,9 @@ static inline int at_transport_read_byte(uint8_t *byte, TickType_t timeout)
 }
 static inline void at_transport_write(const char *data, size_t len)
 {
+    if (len == 0) {
+        return; /* e.g. an empty HTTP body (204): nothing to send */
+    }
     uart_write_bytes(AT_UART_PORT, data, len);
 }
 #endif
