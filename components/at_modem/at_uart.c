@@ -171,7 +171,9 @@ static void at_uart_rx_task(void *arg)
             continue;
         }
 
-        int n = at_transport_read_byte(&byte, portMAX_DELAY);
+        /* lines held back during the boot Wi-Fi join: poll until they run */
+        bool held = at_dispatch_poll();
+        int n = at_transport_read_byte(&byte, held ? pdMS_TO_TICKS(50) : portMAX_DELAY);
         if (n <= 0) {
             continue;
         }

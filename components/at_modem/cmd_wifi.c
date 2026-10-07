@@ -68,18 +68,38 @@ static esp_timer_handle_t s_auth_retry_timer;
 static atomic_bool s_sta_connected = false;
 
 #if CONFIG_AT_MODEM_CMDSET_OTH
-/* OTH-AT AUCONMODE: with auto-connect on, a lost link is rejoined by the
- * module itself (every OTH_RECONNECT_DELAY_US until it succeeds or the host
- * sends DISASSOCIATE / a new join). */
-#define OTH_RECONNECT_DELAY_US (5 * 1000 * 1000)
-static esp_timer_handle_t s_reconnect_timer;
 static bool s_boot_autoconnect;
+#endif
+
+/* A link that was up and dropped without a host disconnect (AP gone, out of
+ * range, deauth), or a failed boot join of the saved station profile, is
+ * rejoined by the module itself, forever: RELINK_TRIES attempts
+ * AUTH_RETRY_DELAY_US apart, then a failure notice (M2M-AT: WF_DISCONN:DONE
+ * <reason>; OTH-AT: ASSOCIATED:<result>), a RELINK_REST_US pause, and the
+ * next RELINK_TRIES attempts. In OTH-AT a lost link is rejoined only with
+ * AUCONMODE on and is announced at once (DISASSOCIATED). Shares the
+ * auth-retry timer and counter; cancelled the same way (new connect
+ * attempt, host disconnect, successful connection) or when station mode is
+ * turned off. */
+#define RELINK_TRIES   3
+#define RELINK_REST_US (20LL * 1000 * 1000)
+static atomic_bool s_relink = false;
+
+#if CONFIG_AT_MODEM_CMDSET_OTH
+#define RELINK_ON_LOSS() at_oth_wifi_autoconnect_enabled()
+#define POST_JOIN_FAILED(doc_reason, esp_reason) \
+    at_event_post("ASSOCIATED:%d", at_oth_wifi_assoc_result(esp_reason))
+#else
+#define RELINK_ON_LOSS() true
+#define POST_JOIN_FAILED(doc_reason, esp_reason) at_event_post("WF_DISCONN:DONE %d", (doc_reason))
 #endif
 
 static void auth_retry_timer_cb(void *arg)
 {
     (void)arg;
-    esp_wifi_connect();
+    if (esp_wifi_connect() != ESP_OK) {
+        atomic_store(&s_relink, false); /* station mode off: nothing to rejoin */
+    }
 }
 
 static void auth_retry_reset(void)
@@ -88,11 +108,71 @@ static void auth_retry_reset(void)
         esp_timer_stop(s_auth_retry_timer); /* ESP_ERR_INVALID_STATE if idle -- fine */
     }
     atomic_store(&s_auth_retries, 0);
-#if CONFIG_AT_MODEM_CMDSET_OTH
-    if (s_reconnect_timer) {
-        esp_timer_stop(s_reconnect_timer);
+    atomic_store(&s_relink, false);
+}
+
+/* Boot-time join of the saved station profile: pending from at_wifi_init()
+ * until the link has an IP, the join is reported failed, the host
+ * disconnects, or BOOT_LINK_WAIT_US after boot. While pending,
+ * at_dispatch.c holds back network commands (up to 10) so a host that
+ * starts talking right after a reset doesn't break into the join (after a
+ * hard reset the AP may refuse it for a few seconds, see above). */
+#define BOOT_LINK_WAIT_US (15LL * 1000 * 1000)
+static atomic_bool s_boot_link_pending = false;
+
+bool at_wifi_link_pending(void)
+{
+    if (!atomic_load(&s_boot_link_pending)) {
+        return false;
     }
+    if (esp_timer_get_time() >= BOOT_LINK_WAIT_US) {
+        atomic_store(&s_boot_link_pending, false);
+        return false;
+    }
+    return true;
+}
+
+/* A join the module started by itself (boot join, auth retry, rejoin after
+ * a lost link) and has not reported the outcome of yet. */
+static bool sta_join_in_progress(void)
+{
+    return at_wifi_link_pending() || atomic_load(&s_relink) || atomic_load(&s_auth_retries) > 0;
+}
+
+/* True when `want` is the station profile the driver already has. */
+static bool sta_same_profile(const wifi_config_t *want)
+{
+    wifi_config_t cur;
+    if (esp_wifi_get_config(WIFI_IF_STA, &cur) != ESP_OK) {
+        return false;
+    }
+    return memcmp(cur.sta.ssid, want->sta.ssid, sizeof(cur.sta.ssid)) == 0 &&
+           memcmp(cur.sta.password, want->sta.password, sizeof(cur.sta.password)) == 0 &&
+           cur.sta.bssid_set == want->sta.bssid_set &&
+           (!want->sta.bssid_set || memcmp(cur.sta.bssid, want->sta.bssid, sizeof(cur.sta.bssid)) == 0);
+}
+
+/* Repeats the "link is up" notices for a join request to the AP the
+ * station is already on (M2M-AT: WF_CONN:DONE + NET_IP:IND; OTH-AT:
+ * ASSOCIATED:0 + IPALLOCATED), the IP one once it has an IP. */
+static void post_link_up(void)
+{
+#if CONFIG_AT_MODEM_CMDSET_OTH
+    at_event_post("ASSOCIATED:0");
+#else
+    at_event_post("WF_CONN:DONE");
 #endif
+    esp_netif_ip_info_t ip;
+    if (esp_netif_get_ip_info(s_netif_sta, &ip) == ESP_OK && ip.ip.addr != 0) {
+        esp_netif_dns_info_t dns = {0};
+        esp_netif_get_dns_info(s_netif_sta, ESP_NETIF_DNS_MAIN, &dns);
+#if CONFIG_AT_MODEM_CMDSET_OTH
+        at_event_post("IPALLOCATED:" IPSTR " " IPSTR " " IPSTR " " IPSTR,
+#else
+        at_event_post("NET_IP:IND " IPSTR " " IPSTR " " IPSTR " " IPSTR,
+#endif
+                      IP2STR(&ip.ip), IP2STR(&ip.netmask), IP2STR(&ip.gw), IP2STR(&dns.ip.u_addr.ip4));
+    }
 }
 
 /* Doc's Wi-Fi auth enum (Ch.3.2) diverges from ESP-IDF's wifi_auth_mode_t
@@ -203,6 +283,15 @@ static bool apmode_start_sta(void)
     if (esp_wifi_get_config(WIFI_IF_STA, &sta_cfg) != ESP_OK || sta_cfg.sta.ssid[0] == '\0') {
         return false;
     }
+    /* Already on (or still joining) this very profile: don't break into
+     * it -- the running join reports its own outcome. */
+    if (atomic_load(&s_sta_connected)) {
+        post_link_up();
+        return true;
+    }
+    if (sta_join_in_progress()) {
+        return true;
+    }
     wifi_mode_t cur_mode;
     esp_wifi_get_mode(&cur_mode);
     wifi_mode_t new_mode = (cur_mode == WIFI_MODE_AP || cur_mode == WIFI_MODE_APSTA)
@@ -272,11 +361,47 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, voi
                     at_event_post("DISASSOCIATED"); /* "lost or closed" */
                 }
 #endif
+                atomic_store(&s_boot_link_pending, false);
                 break; /* host-initiated via AT*M2M*WF_DISCONN -- no async notice */
             }
             const wifi_event_sta_disconnected_t *ev = (const wifi_event_sta_disconnected_t *)data;
             int doc_reason = map_disconnect_reason_to_doc(ev->reason);
             ESP_LOGI(TAG, "disconnected, reason %u", ev->reason);
+            bool leaving = ev->reason == WIFI_REASON_ASSOC_LEAVE || ev->reason == WIFI_REASON_STA_LEAVING;
+#if CONFIG_AT_MODEM_CMDSET_OTH
+            if (was_connected) {
+                at_event_post("DISASSOCIATED");
+            }
+#endif
+            /* A lost link (not the module leaving by itself, e.g. station
+             * mode turned off) or a failed boot join starts the endless
+             * rejoin. */
+            if (was_connected && !leaving && RELINK_ON_LOSS()) {
+                atomic_store(&s_auth_retries, 0);
+                atomic_store(&s_relink, true);
+            } else if (!atomic_load(&s_relink) && atomic_load(&s_boot_link_pending)) {
+                /* the boot attempt counts as the round's first */
+                atomic_store(&s_auth_retries, 1);
+                atomic_store(&s_relink, true);
+            }
+            if (atomic_load(&s_relink) && s_auth_retry_timer) {
+                int tries = atomic_fetch_add(&s_auth_retries, 1);
+                if (tries < RELINK_TRIES) {
+                    ESP_LOGW(TAG, "no link (reason %u), rejoin %d/%d in 3 s", ev->reason, tries + 1,
+                             RELINK_TRIES);
+                    esp_timer_start_once(s_auth_retry_timer, AUTH_RETRY_DELAY_US);
+                    break;
+                }
+                /* round failed: report it, rest, then the next round (the
+                 * attempt after the rest counts as its first try) */
+                atomic_store(&s_boot_link_pending, false); /* held commands may run */
+                POST_JOIN_FAILED(doc_reason, ev->reason);
+                atomic_store(&s_auth_retries, 1);
+                ESP_LOGW(TAG, "rejoin failed %d times, next round in %d s", RELINK_TRIES,
+                         (int)(RELINK_REST_US / 1000000));
+                esp_timer_start_once(s_auth_retry_timer, RELINK_REST_US);
+                break;
+            }
             /* the first auth failure starts the sequence; once started,
              * any failure (e.g. CONNECTION_FAIL) continues it */
             if (doc_reason == 2 || atomic_load(&s_auth_retries) > 0) {
@@ -288,20 +413,17 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, voi
                     break;
                 }
             }
+            atomic_store(&s_auth_retries, 0); /* sequence over: nothing in progress any more */
+            atomic_store(&s_boot_link_pending, false);
 #if CONFIG_AT_MODEM_CMDSET_OTH
-            if (was_connected) {
-                at_event_post("DISASSOCIATED");
-                if (at_oth_wifi_autoconnect_enabled() && s_reconnect_timer) {
-                    esp_timer_start_once(s_reconnect_timer, OTH_RECONNECT_DELAY_US);
-                }
-            } else if (ev->reason != WIFI_REASON_STA_LEAVING && ev->reason != WIFI_REASON_ASSOC_LEAVE) {
+            if (!was_connected && !leaving) {
                 /* (the module leaving by itself, e.g. WPS starting, is no
                  * failed join) */
-                at_event_post("ASSOCIATED:%d", at_oth_wifi_assoc_result(ev->reason));
+                POST_JOIN_FAILED(doc_reason, ev->reason);
             }
 #else
-            (void)was_connected;
-            at_event_post("WF_DISCONN:DONE %d", doc_reason);
+            (void)leaving;
+            POST_JOIN_FAILED(doc_reason, ev->reason);
 #endif
             break;
         }
@@ -396,6 +518,7 @@ static void wifi_event_handler(void *arg, esp_event_base_t base, int32_t id, voi
 
     if (base == IP_EVENT && id == IP_EVENT_STA_GOT_IP) {
         const ip_event_got_ip_t *ev = (const ip_event_got_ip_t *)data;
+        atomic_store(&s_boot_link_pending, false);
         esp_netif_dns_info_t dns = {0};
         esp_netif_get_dns_info(s_netif_sta, ESP_NETIF_DNS_MAIN, &dns);
         /* Doc Ch.7.1 message summary table: "NET_IP:IND <ip> <subnet>
@@ -442,8 +565,6 @@ void at_wifi_init(void)
 #if CONFIG_AT_MODEM_CMDSET_OTH
     ESP_ERROR_CHECK(esp_event_handler_instance_register(IP_EVENT, IP_EVENT_STA_LOST_IP,
                                                           &wifi_event_handler, NULL, NULL));
-    const esp_timer_create_args_t reconnect_args = { .callback = auth_retry_timer_cb, .name = "wifi_reconn" };
-    ESP_ERROR_CHECK(esp_timer_create(&reconnect_args, &s_reconnect_timer));
 #endif
 
     char cc[4] = "";
@@ -480,9 +601,10 @@ void at_wifi_init(void)
     m2m_nvs_get_u16("apm_type", &apm_type);
     if (apm_type != 0) {
         if (at_wifi_activate_saved_profile()) {
-#if CONFIG_AT_MODEM_CMDSET_OTH
             uint16_t target = APMODE_TARGET_STA;
             m2m_nvs_get_u16("apm_target", &target);
+            atomic_store(&s_boot_link_pending, target == APMODE_TARGET_STA);
+#if CONFIG_AT_MODEM_CMDSET_OTH
             s_boot_autoconnect = (target == APMODE_TARGET_STA);
 #endif
             ESP_LOGI(TAG, "Wi-Fi driver ready, WF_APMODE=%u auto-reconnect activated", apm_type);
@@ -724,6 +846,21 @@ void cmd_wf_conn(const at_command_t *cmd)
                 wifi_cfg.sta.bssid[i] = (uint8_t)b[i];
             }
             wifi_cfg.sta.bssid_set = true;
+        }
+    }
+
+    /* The AP the station is already on, or still joining by itself (boot
+     * join, retry, rejoin): don't restart the join. OK now; the outcome
+     * follows as usual (repeated at once when the link is already up). */
+    if (sta_same_profile(&wifi_cfg)) {
+        if (atomic_load(&s_sta_connected)) {
+            at_reply_ok(cmd->name, NULL);
+            post_link_up();
+            return;
+        }
+        if (sta_join_in_progress()) {
+            at_reply_ok(cmd->name, NULL);
+            return;
         }
     }
 
@@ -1478,6 +1615,17 @@ bool at_wifi_sta_join(const wifi_config_t *cfg)
 {
     if (!at_wifi_ensure_sta_started()) {
         return false;
+    }
+    /* same AP as the link that is up or still being joined by the module
+     * itself: keep it (see cmd_wf_conn()) */
+    if (sta_same_profile(cfg)) {
+        if (atomic_load(&s_sta_connected)) {
+            post_link_up();
+            return true;
+        }
+        if (sta_join_in_progress()) {
+            return true;
+        }
     }
     if (esp_wifi_set_config(WIFI_IF_STA, (wifi_config_t *)cfg) != ESP_OK) {
         return false;

@@ -2,6 +2,7 @@
 
 #include "at_modem.h"
 #include "at_uart.h"
+#include "at_dispatch.h"
 #include "at_event.h"
 #include "at_wifi.h"
 #include "net_link.h"
@@ -30,13 +31,17 @@ void at_modem_init(void)
 
 #if CONFIG_AT_MODEM_CMDSET_OTH
     at_oth_init();
+    at_dispatch_set_ready(); /* lines received during the init above may run now */
     /* OTH-AT Ch.7: DEVICEREADY once ready (suppressed by EVTDEL=1), then
      * INITSCAN when a saved station profile is being rejoined. */
     at_event_post("DEVICEREADY");
     if (at_wifi_take_boot_autoconnect()) {
         at_event_post("INITSCAN");
     }
-#elif CONFIG_M2M_PWRON_NOTIFY
+#else
+    at_dispatch_set_ready();
+#endif
+#if !CONFIG_AT_MODEM_CMDSET_OTH && CONFIG_M2M_PWRON_NOTIFY
     /* Doc Ch.7.1: "*M2M*DEVICEREADY -- Module has booted and is ready for
      * commands." Sent last, once every subsystem above is actually usable.
      * Gated by the release-naming CONFIG segment's PWRON digit (M2M_SW

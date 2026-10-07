@@ -18,6 +18,13 @@ extern "C" {
 #define AT_ERR_ARG           2
 #define AT_ERR_STATE         3
 #define AT_ERR_TIMEOUT       4
+/* held-command queue full (at_dispatch.c); OTH-AT has no busy code, its
+ * ERR_OUT_OF_MEMORY (7) is the nearest */
+#if CONFIG_AT_MODEM_CMDSET_OTH
+#define AT_ERR_BUSY          7
+#else
+#define AT_ERR_BUSY          98
+#endif
 #define AT_ERR_NOT_SUPPORTED 99
 
 /** "*M2M*<cmd>:OK[ <fmt...>]\r\n" -- pass fmt=NULL for a bare OK. */

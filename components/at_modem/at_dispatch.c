@@ -1,9 +1,13 @@
+#include <stdatomic.h>
+#include <stdlib.h>
+#include <string.h>
 #include <strings.h>
 
 #include "at_dispatch.h"
 #include "at_parser.h"
 #include "at_response.h"
 #include "at_commands.h"
+#include "at_wifi.h"
 #include "at_cmdset.h"
 #if CONFIG_AT_MODEM_CMDSET_OTH
 #include "at_commands_oth.h"
@@ -228,7 +232,7 @@ static const at_dispatch_entry_t s_table[] = {
 
 #define TABLE_LEN (sizeof(s_table) / sizeof(s_table[0]))
 
-void at_dispatch_line(char *line)
+static void dispatch_now(char *line)
 {
     at_command_t cmd;
     if (!at_parse_line(line, &cmd)) {
@@ -253,4 +257,112 @@ void at_dispatch_line(char *line)
     } else {
         at_reply_error(cmd.name, AT_ERR_UNKNOWN_CMD);
     }
+}
+
+/* ---- Commands held back during the boot-time Wi-Fi join ----------------
+ * Lines that arrive before at_modem_init() has finished (the line reader
+ * starts first) are all held until it has. Then: a host often starts
+ * right after a (hard) reset, while the module is still joining its saved
+ * WF_APMODE profile. A network command then would fail
+ * or break into that join, so while at_wifi_link_pending() such commands
+ * are held -- and every line after the first held one too, to keep the
+ * order -- and run once the join has an outcome (NET_IP:IND or
+ * WF_DISCONN:DONE; OTH-AT: IPALLOCATED or ASSOCIATED:<n>) or 15 s after
+ * boot. Each one's OK/ERROR comes when it
+ * runs. At most HOLD_MAX_CMDS lines / HOLD_MAX_BYTES; beyond that a line
+ * is refused at once with error AT_ERR_BUSY. */
+#define HOLD_MAX_CMDS  10
+#define HOLD_MAX_BYTES 16384
+
+static atomic_bool s_ready = false; /* at_modem_init() done */
+static char *s_hold[HOLD_MAX_CMDS];
+static int s_hold_n;
+static size_t s_hold_bytes;
+
+/* Wi-Fi join, IP and every networking command (sockets, HTTP, SNTP, ping,
+ * MQTT, AWS IoT, OTA). */
+static bool needs_link(const char *line)
+{
+#if CONFIG_AT_MODEM_CMDSET_OTH
+    static const char *const exact[] = {
+        "ASSOCIATE", "DISASSOCIATE", "SCONN", "SMODE", "NWSTATUS", "IPCONFIG", "SOCKET", "CLOSE",
+        "CONNECT", "DISCONNECT", "BIND", "LISTEN", "LSTATUS", "SEND", "SENDTO", "TCPKEEP", "NW_CONN",
+        "PING", "DNSQUERY", "DATA_SOCKET", "DATA_INTERVAL", "SNTP", "MCU_READY",
+    };
+    static const char *const prefix[] = { "SSL_", "HTTP", "SNTP_", "FTPC_", "OTA_", "MQTT_", "AWS_", "MOTA_" };
+#else
+    static const char *const exact[] = { "WF_CONN", "WF_APMODE", "WF_DISCONN", "WF_IPSTATUS" };
+    static const char *const prefix[] = { "NET_", "MQTT_", "AWS_", "OTA_" };
+#endif
+    if (strncasecmp(line, "AT" AT_TAG, 2 + AT_TAG_LEN) != 0) {
+        return false;
+    }
+    const char *name = line + 2 + AT_TAG_LEN;
+    size_t len = strcspn(name, "=?");
+    for (size_t i = 0; i < sizeof(exact) / sizeof(exact[0]); i++) {
+        if (strlen(exact[i]) == len && strncasecmp(name, exact[i], len) == 0) {
+            return true;
+        }
+    }
+    for (size_t i = 0; i < sizeof(prefix) / sizeof(prefix[0]); i++) {
+        if (strncasecmp(name, prefix[i], strlen(prefix[i])) == 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+static void hold_line(char *line)
+{
+    size_t len = strlen(line) + 1;
+    char *copy = NULL;
+    if (s_hold_n < HOLD_MAX_CMDS && s_hold_bytes + len <= HOLD_MAX_BYTES) {
+        copy = malloc(len);
+    }
+    if (!copy) {
+        at_command_t cmd;
+        if (at_parse_line(line, &cmd) && !cmd.is_special) {
+            at_reply_error(cmd.name, AT_ERR_BUSY);
+        } else {
+            at_reply_special_error();
+        }
+        return;
+    }
+    memcpy(copy, line, len);
+    s_hold[s_hold_n++] = copy;
+    s_hold_bytes += len;
+}
+
+void at_dispatch_line(char *line)
+{
+    if (!atomic_load(&s_ready) || s_hold_n > 0 || (needs_link(line) && at_wifi_link_pending())) {
+        hold_line(line);
+        return;
+    }
+    dispatch_now(line);
+}
+
+void at_dispatch_set_ready(void)
+{
+    atomic_store(&s_ready, true);
+}
+
+bool at_dispatch_poll(void)
+{
+    if (s_hold_n == 0) {
+        return false;
+    }
+    if (!atomic_load(&s_ready) || at_wifi_link_pending()) {
+        return true;
+    }
+    for (int i = 0; i < s_hold_n; i++) {
+        size_t len = strlen(s_hold[i]);
+        dispatch_now(s_hold[i]);
+        memset(s_hold[i], 0, len); /* may carry payloads (NET_SEND, passwords) */
+        free(s_hold[i]);
+        s_hold[i] = NULL;
+    }
+    s_hold_n = 0;
+    s_hold_bytes = 0;
+    return false;
 }

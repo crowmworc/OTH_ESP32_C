@@ -51,6 +51,11 @@ bool at_wifi_set_station_ip(bool dhcp, const char *ip, const char *netmask, cons
  * WF_APMODE itself). */
 void at_wifi_persist_apmode_sta(void);
 
+/** True while the boot-time join of the saved WF_APMODE station profile has
+ * no outcome yet (at most 15 s after boot) -- at_dispatch.c holds network
+ * commands back meanwhile. */
+bool at_wifi_link_pending(void);
+
 /* Shared station/SoftAP building blocks (cmd_wifi.c), used by the OTH-AT
  * front end. at_wifi_ensure_sta_started() turns station mode on (keeping a
  * running SoftAP) if it is off. */
