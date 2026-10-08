@@ -51,6 +51,7 @@
 #include "esp_event.h"
 #include "esp_crt_bundle.h"
 #include "mqtt_client.h"
+#include "mqtt_rx.h"
 #include "cJSON.h"
 
 #include "at_commands.h"
@@ -88,6 +89,7 @@ typedef struct {
 } aws_link_t;
 
 static aws_link_t s_links[AWS_MAX_LINKS];
+static mqtt_rx_t s_rx[AWS_MAX_LINKS]; /* incoming-message reassembly, see mqtt_rx.h */
 
 /* AT*M2M*AWS_CLAIMCERT state */
 static struct {
@@ -530,23 +532,26 @@ static void aws_event_handler(void *handler_args, esp_event_base_t base, int32_t
         at_event_post("AWS_CONN:ERROR %d %d", link_id, reason);
         break;
     }
-    case MQTT_EVENT_DATA:
-        if (event->topic_len > 0) {
-            /* Doc's AWS_MSG example puts the payload on its own line after
-             * the DONE header, like NET_RECV/MQTT_RECV -- raw bytes, not
-             * byte-stuffed. */
-            char topic[129];
-            int tlen = event->topic_len < 128 ? event->topic_len : 128;
-            memcpy(topic, event->topic, (size_t)tlen);
-            topic[tlen] = '\0';
+    case MQTT_EVENT_DATA: {
+        /* Doc's AWS_MSG example puts the payload on its own line after the
+         * DONE header, like NET_RECV/MQTT_RECV -- raw bytes, not
+         * byte-stuffed. A fragmented message is collected whole first
+         * (mqtt_rx.c); one over MQTT_RX_MAX is reported as AWS_MSG:ERROR. */
+        mqtt_rx_t *rx = &s_rx[link_id];
+        mqtt_rx_result_t r = mqtt_rx_feed(rx, event);
+        if (r == MQTT_RX_TOO_BIG) {
+            at_event_post("AWS_MSG:ERROR %d \"%s\" %u", link_id, rx->topic, (unsigned)rx->total);
+        } else if (r == MQTT_RX_DONE) {
             char header[200];
-            int hlen = snprintf(header, sizeof(header), AT_TAG "AWS_MSG:DONE %d \"%s\" %d\r\n",
-                                 link_id, topic, event->data_len);
+            int hlen = snprintf(header, sizeof(header), AT_TAG "AWS_MSG:DONE %d \"%s\" %u\r\n",
+                                 link_id, rx->topic, (unsigned)rx->len);
             if (hlen > 0 && (size_t)hlen < sizeof(header)) {
-                at_uart_write_atomic2(header, (size_t)hlen, event->data, (size_t)event->data_len);
+                at_uart_write_atomic2(header, (size_t)hlen, (const char *)rx->data, rx->len);
             }
+            mqtt_rx_reset(rx);
         }
         break;
+    }
     default:
         break;
     }

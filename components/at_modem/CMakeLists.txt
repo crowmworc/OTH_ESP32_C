@@ -17,6 +17,7 @@ set(srcs
         "cmd_http.c"
         "cmd_httpd.c"
         "cmd_mqtt.c"
+        "mqtt_rx.c"
         "cmd_ota.c"
         "cmd_aws.c"
         "m2m_image_id.c"

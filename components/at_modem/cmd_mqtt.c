@@ -30,6 +30,7 @@
 #include "fs_store.h"
 #include "mqtt_web.h"
 #include "sdkconfig.h"
+#include "mqtt_rx.h"
 
 #define MQTT_MAX_LINKS 4
 #define MQTT_MAX_SUBS  10
@@ -79,6 +80,7 @@ typedef struct {
 } mqtt_link_t;
 
 static mqtt_link_t s_links[MQTT_MAX_LINKS];
+static mqtt_rx_t s_rx[MQTT_MAX_LINKS]; /* incoming-message reassembly, see mqtt_rx.h */
 
 /* Loads cert_name into a fresh heap buffer sized to its actual content (a
  * combined CA+client-cert+key bundle may be several KB; a lone cert or key
@@ -151,26 +153,27 @@ static void mqtt_event_handler(void *handler_args, esp_event_base_t base, int32_
         break;
     }
 
-    case MQTT_EVENT_DATA:
-        /* A message split across multiple MQTT_EVENT_DATA fragments
-         * (total_data_len > data_len) only carries the topic on its first
-         * fragment; continuation fragments are dropped rather than
-         * reassembled -- a scope simplification for large messages. */
-        if (event->topic_len > 0) {
-            char topic[129];
-            int tlen = event->topic_len < 128 ? event->topic_len : 128;
-            memcpy(topic, event->topic, (size_t)tlen);
-            topic[tlen] = '\0';
-
+    case MQTT_EVENT_DATA: {
+        /* A message larger than esp-mqtt's buffer comes in several
+         * fragments (only the first names the topic): collected whole
+         * first (mqtt_rx.c), up to MQTT_RX_MAX; a larger one is reported
+         * as MQTT_RECV:ERROR instead of being passed on cut short. */
+        mqtt_rx_t *rx = &s_rx[link_id];
+        mqtt_rx_result_t r = mqtt_rx_feed(rx, event);
+        if (r == MQTT_RX_TOO_BIG) {
+            at_event_post("MQTT_RECV:ERROR %d %s %u", link_id, rx->topic, (unsigned)rx->total);
+        } else if (r == MQTT_RX_DONE) {
             char header[200];
-            int hlen = snprintf(header, sizeof(header), AT_TAG "MQTT_RECV:IND %d %s %d ",
-                                 link_id, topic, event->data_len);
+            int hlen = snprintf(header, sizeof(header), AT_TAG "MQTT_RECV:IND %d %s %u ",
+                                 link_id, rx->topic, (unsigned)rx->len);
             if (hlen > 0 && (size_t)hlen < sizeof(header)) {
-                at_uart_write_atomic2(header, (size_t)hlen, event->data, (size_t)event->data_len);
+                at_uart_write_atomic2(header, (size_t)hlen, (const char *)rx->data, rx->len);
                 at_uart_write("\r\n", 2);
             }
+            mqtt_rx_reset(rx);
         }
         break;
+    }
 
     default:
         break;

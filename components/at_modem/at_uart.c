@@ -39,10 +39,17 @@ static inline int at_transport_read_byte(uint8_t *byte, TickType_t timeout)
 }
 static inline void at_transport_write(const char *data, size_t len)
 {
-    if (len == 0) {
-        return; /* the driver rejects a zero-length write ("invalid buffer or size") */
+    /* The driver takes at most its TX buffer size per call (a larger write
+     * sends nothing), and rejects a zero-length one: feed it in pieces. */
+    while (len > 0) {
+        size_t n = len < 1024 ? len : 1024;
+        int w = usb_serial_jtag_write_bytes(data, n, portMAX_DELAY);
+        if (w <= 0) {
+            return;
+        }
+        data += w;
+        len -= (size_t)w;
     }
-    usb_serial_jtag_write_bytes(data, len, portMAX_DELAY);
 }
 #else
 static inline int at_transport_read_byte(uint8_t *byte, TickType_t timeout)
