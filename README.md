@@ -702,9 +702,37 @@ for the full command-by-command mapping and rationale.
       Not yet verified: pairing with the app, A101 (erases NV memory), the
       real servers.
 
+- [x] **Phase 23** — carried over from M2M (GitHub M2M_ESP32_C3 4aea780,
+      cb18a76), 2026-10-07..09. Wi-Fi (`cmd_wifi.c`): a lost link
+      (AUCONMODE 1) or a failed boot join of the saved station profile is
+      rejoined forever -- 3 attempts 3 s apart, `ASSOCIATED:2` per failed
+      round, 20 s pause, repeat; `DISASSOCIATED` still comes at once.
+      Replaces the old 5 s reconnect timer. A join (ASSOCIATE, SCONN,
+      SMODE 99, pairing) to the AP the station is already on keeps the link
+      (`ASSOCIATED:0` + `IPALLOCATED` again); one to the AP it is still
+      joining by itself doesn't restart the join. Start-up queue
+      (`at_dispatch.c`): lines received before init is done, and network
+      commands while the boot join is pending, are held (max 10 / 16 KB,
+      else `ERROR 7`) and run in order at `IPALLOCATED`, the first failed
+      round, or 15 s after boot. Shared code: `at_uart.c` splits USB
+      Serial/JTAG writes into 1 KB chunks (a single write over the 4 KB TX
+      buffer sent nothing), `mqtt_rx.c` reassembles M2M-side MQTT/AWS
+      messages (the OTH MQTT/AWS front ends keep their own 8 KB
+      reassembly; a larger OTH MQTT message is dropped without a
+      notification -- the OTH-AT spec has none).
+      Verified on COM7 (kangaps25): hard reset + 6 commands 0.3 s later ->
+      held and answered in order after the join; 12 commands -> 10 OK,
+      11th/12th `ERROR 7`; AP switched off -> `DISASSOCIATED` at once,
+      rounds of 3 attempts (reason 201) with `ASSOCIATED:2` about every
+      33 s for 6+ minutes, `IPRELEASED` when the lease ran out, rejoined by
+      itself once the AP was back (NWSTATUS: kangaps25, IP). MQTT
+      (broker.emqx.io): 2000/6000/8192 B messages arrive whole in one
+      `MQTT_SUB_RECV` (8192 B = one >4 KB USB write), 9000 B dropped.
+      HTTPGET 2000/5000/8000 B bodies complete. Not tried: the 15 s cap.
+
 Explicitly out of scope (no corresponding chapter in the M2M-AT Command Set
 doc, or excluded by decision): Wi-Fi Direct/P2P, CoAP, oneM2M, UPnP, DDNS,
-LPD, FTP, the mobile-pairing server, the MCU-firmware (MOTA) relay, and the
+LPD, FTP, the mobile-pairing server, and the
 Binary UART Protocol (a separate, unread doc).
 
 ## Release naming (2026-09-26, M2M_SW Release Naming Guide v2.0)

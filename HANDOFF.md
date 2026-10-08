@@ -7,6 +7,7 @@
 > **최신 재개 지점(2026-10-06): README Phase 22** — 결정에 따라 OTH AWS를 OTH Platform
 > 방식(SoftAP 페어링 → 인증서버 → MQTT)으로 재구현. 미검증: 앱 페어링, 실서버 인증서/MQTT.
 > 비교 검토 배경은 `doc/OTH-AT_vs_ICT_260808_Review.md`.
+> **2026-10-09: README Phase 23** — M2M에서 가져온 Wi-Fi 무한 재접속(3회 3초 간격 → `ASSOCIATED:2` → 20초 휴식 반복), 부팅 중 명령 보류 큐(최대 10개/16KB, 초과 `ERROR 7`), USB 1KB 분할 쓰기. AP 끔/켬 포함 실기 검증 완료.
 
 PC를 포맷하고 GitHub에서 다시 받은 뒤 바로 작업을 재개하기 위한 문서.
 기준일: **2026-10-05** (GitHub `main` = 이 문서를 추가한 커밋).
@@ -159,7 +160,7 @@ NVD API 키 없이 돌리면 HTTP 429가 날 수 있다 → 1~2분 기다렸다 
 9. **BLE_PROV** — 폰 앱으로 끝까지 진행 + 재부팅 후 재접속 실기 로그 문서화 (현재 "검증필요").
 
 ### 알려진 버그 (미수정)
-10. `NET_HTTPGET`이 본문 없는 응답(HTTP 204)을 받으면 길이 0 USB 쓰기 오류 (`usb_serial_jtag_write_bytes ... invalid buffer or size`).
+10. ~~`NET_HTTPGET`/`HTTPGET` 204 응답 시 길이 0 USB 쓰기 오류~~ — 2026-10-07 수정 (OTH 02da44d). 4KB 넘는 단일 USB 쓰기 누락도 2026-10-09 수정 (README Phase 23).
 11. Wi-Fi 비밀번호 오류 시 esp reason 15(4WAY_HANDSHAKE_TIMEOUT)가 문서 reason 2가 아니라 0으로 매핑됨.
 12. Appendix C 에러코드와 실제 반환값 불일치 — 매핑만 문서화하고 코드는 호환성 때문에 유지하기로 결정 (status xlsx "부록 및 기타" D6).
 
