@@ -1,5 +1,7 @@
 # HANDOFF — 재설치 후 바로 이어서 작업하기
 
+> **포맷 후 재개는 M2M 저장소의 `HANDOFF.md`(2026-10-09 갱신)를 먼저 볼 것** — 백업 목록, 두 저장소 clone, 빌드 환경 함정(ESP_ROM_ELF_DIR, Windows 애플리케이션 제어의 ld.exe 차단), 보드 상태, M2M/OTH 현황과 다음 할 일이 한 곳에 정리돼 있다. 아래는 이전 내용.
+
 > **이 저장소(OTH_ESP32_C)는 OTH-AT 빌드용이다.** 아래 내용은 M2M 저장소 기준으로
 > 쓴 것이고, 빌드·플래시·보드 주의사항은 그대로 적용된다. OTH 관련 현황은
 > `README.md` 맨 위 설명과 Progress Phase 16-21, `doc/OTH-AT_Command_Status.xlsx`를 볼 것.
